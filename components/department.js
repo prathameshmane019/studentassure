@@ -13,11 +13,7 @@ import { signOut } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { usePathname } from "next/navigation"; 
 const sidebarItems = [
-  {
-    name: "Profile",
-    href: "/admin/profile",
-    icon: CgProfile,
-  },
+
   {
     name: "Manage Feedback",
     href: "/admin/feedbacks",

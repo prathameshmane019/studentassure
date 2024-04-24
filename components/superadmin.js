@@ -10,11 +10,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { usePathname } from "next/navigation"; 
 const sidebarItems = [
-  {
-    name: "Profile",
-    href: "/super_admin/profile",
-    icon: CgProfile,
-  },
+
   {
     name: "Manage Questions",
     href: "/super_admin/questions",
