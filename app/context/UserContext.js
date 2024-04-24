@@ -19,7 +19,7 @@ export const UserProvider = ({ children }) => {
       setUser(session?.user);
       console.log(user);
     }
-  }, [session]);
+  }, [session,user]);
 
   return (
     <UserContext.Provider value={user}>
