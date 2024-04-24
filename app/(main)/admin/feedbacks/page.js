@@ -1,4 +1,4 @@
-import FeedbackForm from '@/components/feedbackfrom'
+import FeedbackForm from '@/components/feedbackform'
 import React from 'react'
 
 const page = () => {

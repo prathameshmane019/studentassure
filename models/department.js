@@ -8,7 +8,7 @@ const departmentSchema = new Schema(
     department: {
       type: String,
       required: true,
-      enum: ['CSE', 'First Year', 'ENTC', 'Electrial', 'Civil', 'Mechanical'], // Replace with your department options
+      enum: ['CSE', 'First Year', 'ENTC', 'Electrical', 'Civil', 'Mechanical'], 
     },
     classes:[],
     _id: {
