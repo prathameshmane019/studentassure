@@ -26,8 +26,9 @@ const EvaluationPage = () => {
   useEffect(() => {
     const fetchFeedbackData = async () => {
       try {
-        const response = await axios.get('/api/feedbackData');
-        setFeedbackData(response.data.feedbackData);
+        const response = await axios.get('/api/feedback');
+        setFeedbackData(response.data.feedbacks);
+        console.log(feedbacks);
       } catch (error) {
         console.error('Error fetching feedback data:', error);
       }
@@ -41,7 +42,7 @@ const EvaluationPage = () => {
       setSelectedFeedbackId(selectedFeedback._id)
       const fetchFeedbackResponses = async () => {
         try {
-          const response = await axios.get(`/api/findResponses?feedbackId=${selectedFeedbackId}`);
+          const response = await axios.get(`/api/response?feedbackId=${selectedFeedbackId}`);
           setResponses(response.data);
         } catch (error) {
           console.error('Error fetching responses:', error);
@@ -125,7 +126,7 @@ const EvaluationPage = () => {
               <SelectValue placeholder="Select a Feedback" />
             </SelectTrigger>
             <SelectContent>
-              {feedbackData.map((feedback) => (
+              {feedbackData && feedbackData.map((feedback) => (
                 <SelectItem key={feedback._id} value={feedback}>
                   {feedback.feedbackTitle}
                 </SelectItem>
@@ -149,7 +150,7 @@ const EvaluationPage = () => {
           </Select>
         </div>
 
-        {response.length > 0 && (
+        {response && response.length > 0 && (
           <div id="table-to-print" className="bg-white rounded-lg shadow-lg p-6">
             <h2 className="text-2xl font-bold mb-4">
               Feedback Title: {selectedFeedback?.feedbackTitle} Faculty Name: {selectedSubject.faculty} Subject: {selectedSubject.subject}

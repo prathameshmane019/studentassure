@@ -31,8 +31,8 @@ const EvaluationPage = () => {
   useEffect(() => {
     const fetchFeedbackData = async () => {
       try {
-        const response = await axios.get('/api/feedbackData');
-        const filteredFeedbackData = response.data.feedbackData.filter(
+        const response = await axios.get('/api/feedback');
+        const filteredFeedbackData = response.data.feedbacks.filter(
           feedback => feedback.feedbackTitle.includes(userDepartment)
         );
         setFeedbackData(filteredFeedbackData);
@@ -49,7 +49,7 @@ const EvaluationPage = () => {
       setSelectedFeedbackId(selectedFeedback._id)
       const fetchFeedbackResponses = async () => {
         try {
-          const response = await axios.get(`/api/findResponses?feedbackId=${selectedFeedbackId}`);
+          const response = await axios.get(`/api/response?feedbackId=${selectedFeedbackId}`);
           setResponses(response.data);
         } catch (error) {
           console.error('Error fetching responses:', error);
@@ -124,13 +124,13 @@ const EvaluationPage = () => {
   };
    
   return (
-    <div>
+    <div className='h-screen'>
       <h1>Faculty Evaluation</h1>
       <div className="container mx-auto px-4 py-8">
         <div className="mb-4">
           <Select defaultValue={selectedFeedbackId} onValueChange={(value) => setSelectedFeedback(value)}>
             <SelectTrigger className="w-[180px]">
-              <SelectValue placeholder="Select a Feedback" />
+              <SelectValue >Select a Feedback</SelectValue>
             </SelectTrigger>
             <SelectContent>
               {feedbackData.map((feedback) => (
