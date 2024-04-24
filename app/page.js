@@ -1,5 +1,5 @@
 // pages/index.js
-
+import Link from 'next/link';
 import Head from 'next/head';
 
 export default function Home() {
@@ -15,10 +15,10 @@ export default function Home() {
         <div className="container mx-auto flex justify-between items-center px-4 py-6">
           <img src="/logo.png" alt="Student Assure Logo" className="h-12" />
           <nav className="space-x-4">
-            <a href="#" className="text-gray-600 hover:text-blue-500">Home</a>
-            <a href="#" className="text-gray-600 hover:text-blue-500">Feedback</a>
-            <a href="#" className="text-gray-600 hover:text-blue-500">About</a>
-            <a href="#" className="text-gray-600 hover:text-blue-500">Contact</a>
+          <Link href="#" className="text-gray-600 hover:text-blue-500">Home</Link>
+            <Link href="/givefeedback/" className="text-gray-600 hover:text-blue-500">Feedback</Link>
+           
+            <Link href="/login" className="text-gray-600 hover:text-blue-500">Login</Link>
           </nav>
         </div>
       </header>
@@ -27,7 +27,7 @@ export default function Home() {
         <section className="text-center my-12">
           <h1 className="text-5xl font-bold text-blue-500 mb-4">Empowering Students Through Feedback</h1>
           <p className="text-gray-600 text-lg mb-8">Share your experiences with theory and practical teaching.</p>
-          <button className="bg-blue-500 text-white px-8 py-3 rounded-full hover:bg-blue-600 shadow-lg">Provide Feedback</button>
+          <Link href="/givefeedback" ><button  className="bg-blue-500 text-white px-8 py-3 rounded-full hover:bg-blue-600 shadow-lg">Provide Feedback</button></Link>
         </section>
 
         <section className="text-center my-12">
@@ -41,11 +41,7 @@ export default function Home() {
       <footer className="bg-white py-6 mt-12">
         <div className="container mx-auto flex justify-between items-center px-4">
           <p className="text-gray-600">&copy; 2024 Student Assure</p>
-          <div className="flex space-x-4">
-            <a href="#" className="text-blue-500 hover:text-blue-600">Facebook</a>
-            <a href="#" className="text-blue-500 hover:text-blue-600">Twitter</a>
-            <a href="#" className="text-blue-500 hover:text-blue-600">Instagram</a>
-          </div>
+          
         </div>
       </footer>
     </div>
