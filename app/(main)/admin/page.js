@@ -1,5 +1,5 @@
 "use client"
-//  import { useUser } from "@/app/context/UserContext";
+ import { useUser } from "@/app/context/UserContext";
 function ProfilePage() {
   const user = useUser();
   console.log(user);
