@@ -5,212 +5,208 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useUser } from "@/app/context/UserContext";
-import {toast} from 'sonner'
+import { toast } from 'sonner';
+
 const FeedbackForm = () => {
-  const [subType, setSubType] = useState('');
-  const [feedbackType, setFeedbackType] = useState('');
-  const [className, setClassName] = useState('');
-  const [semester, setSemester] = useState('');
-  const [questions, setQuestions] = useState([]);
-  const [formData, setFormData] = useState({
-    feedbackTitle: '',
-    selectedQuestion: [],
-    subjects: [{ subject: '', faculty: '', _id: '' }],
-    students: '',
-    pwd: '',
-    isActive: false,
-  });
-  const [submitted, setSubmitted] = useState(false);
-  const [error, setError] = useState(null);
+ const [subType, setSubType] = useState('');
+ const [feedbackType, setFeedbackType] = useState('');
+ const [className, setClassName] = useState('');
+ const [semester, setSemester] = useState('');
+ const [questions, setQuestions] = useState([]);
+ const [formData, setFormData] = useState({
+   feedbackTitle: '',
+   selectedQuestion: null,
+   subjects: [{ subject: '', faculty: '', _id: '' }],
+   students: '',
+   pwd: '',
+   isActive: false,
+ });
 
-  const user = useUser();
+ const user = useUser();
 
-  useEffect(() => {
-    if (feedbackType && subType) {
-      fetchQuestions();
-    }
+ useEffect(() => {
+   if (feedbackType && subType) {
+     fetchQuestions();
+   }
 
-    if (feedbackType && feedbackType === 'event') {
-      fetchEventQuestions();
-    }
-  }, [feedbackType, subType]);
+   if (feedbackType && feedbackType === 'event') {
+     fetchEventQuestions();
+   }
+ }, [feedbackType, subType]);
 
-  const fetchEventQuestions = async () => {
-    try {
-      const response = await axios.get(`/api/findquestions?type=event`);
-      setQuestions(response.data.questions);
-    
-    } catch (error) {
-      console.error('Error fetching event questions:', error);
-      toast.error('Error fetching event questions');
-    }
-  };
+ const fetchEventQuestions = async () => {
+   try {
+     const response = await axios.get(`/api/questions?type=event`);
+     setQuestions(response.data.questions);
+   } catch (error) {
+     console.log(error);
+   }
+ };
+
+ const fetchQuestions = async () => {
+   try {
+     const response = await axios.get(`/api/questions?type=${feedbackType}&subtype=${subType}`);
+     setQuestions(response.data.questions);
+   } catch (error) {
+     console.error('Error fetching questions:', error);
+     
+   }
+ };
+
+ const handleChange = (e, index) => {
+   const { name, value } = e.target;
+   if (name.startsWith('subject')) {
+     const newSubjects = [...formData.subjects];
+     newSubjects[index].subject = value;
+     setFormData({ ...formData, subjects: newSubjects });
+   } else if (name.startsWith('faculty')) {
+     const newSubjects = [...formData.subjects];
+     newSubjects[index].faculty = value;
+     setFormData({ ...formData, subjects: newSubjects });
+   } else if (name.startsWith('_id')) {
+     const newSubjects = [...formData.subjects];
+     newSubjects[index]._id = value;
+     setFormData({ ...formData, subjects: newSubjects });
+   } else {
+     setFormData({ ...formData, [name]: value });
+   }
+ };
+
+ const handleAddSubject = () => {
+   setFormData({
+     ...formData,
+     subjects: [...formData.subjects, { subject: '', faculty: '', _id: '' }],
+   });
+ };
+
+ const handleRemoveSubject = (index) => {
+   const newSubjects = formData.subjects.filter((_, i) => i !== index);
+   setFormData({
+     ...formData,
+     subjects: newSubjects,
+   });
+ };
+
+ const handleCancel = () => {
+   setFeedbackType('');
+   setSubType('');
+   setClassName('');
+   setSemester('');
+   setQuestions([]);
+   setFormData({
+     feedbackTitle: '',
+     selectedQuestion: [],
+     subjects: [{ subject: '', faculty: '', _id: '' }],
+     students: '',
+     pwd: '',
+     isActive: false,
+   });
   
-  const fetchQuestions = async () => {
-    try {
-      const response = await axios.get(`/api/findquestions?type=${feedbackType}&subtype=${subType}`);
-      setQuestions(response.data.questions);
-    } catch (error) {
-      console.error('Error fetching questions:', error);
-      setError('Error fetching questions');
-    }
-  };
+ };
 
-  const handleChange = (e, index) => {
-    const { name, value } = e.target;
-    if (name.startsWith('subject')) {
-      const newSubjects = [...formData.subjects];
-      newSubjects[index].subject = value;
-      setFormData({ ...formData, subjects: newSubjects });
-    } else if (name.startsWith('faculty')) {
-      const newSubjects = [...formData.subjects];
-      newSubjects[index].faculty = value;
-      setFormData({ ...formData, subjects: newSubjects });
-    } else if (name.startsWith('_id')) {
-      const newSubjects = [...formData.subjects];
-      newSubjects[index]._id = value;
-      setFormData({ ...formData, subjects: newSubjects });
-    } else {
-      setFormData({ ...formData, [name]: value });
-    }
-  };
+ const handleSubmit = async (e) => {
+   e.preventDefault();
+   try {
+     let feedbackTitle;
+     if (feedbackType === 'academic') {
+       feedbackTitle = generateFeedbackTitle();
+       if (!feedbackTitle) {
+        toast.error('Feedback title is required.');
+         throw new Error('Feedback title is required.');
+       }
+     } else {
+       feedbackTitle = formData.feedbackTitle;
+       if (!feedbackTitle) {
+        toast.error('Feedback title is required.');
+         throw new Error('Feedback title is required.');
+       }
+     }
 
-  const handleAddSubject = () => {
-    setFormData({
-      ...formData,
-      subjects: [...formData.subjects, { subject: '', faculty: '', _id: '' }],
-    });
-  };
+     const updatedFormData = {
+       ...formData,
+       feedbackTitle: feedbackTitle,
+     };
 
-  const handleRemoveSubject = (index) => {
-    const newSubjects = formData.subjects.filter((_, i) => i !== index);
-    setFormData({
-      ...formData,
-      subjects: newSubjects,
-    });
-  };
-  const handleCancel = () => {
-    setFeedbackType('');
-    setSubType('');
-    setClassName('');
-    setSemester('');
-    setQuestions([]);
-    setFormData({
-      feedbackTitle: '',
-      selectedQuestion: [],
-      subjects: [{ subject: '', faculty: '', _id: '' }],
-      students: '',
-      pwd: '',
-      isActive: false,
-    });
-    setError(null);
-    setSubmitted(false);
-  };
+     await axios.post('/api/feedback', updatedFormData);
+     handleCancel()
+     toast.success("Feedback created successfully")
+   } catch (error) {
+     toast.error(error.response?.data?.error || error.message);
+   }
+ };
 
+ const generateFeedbackTitle = () => {
+   if (user && className && semester && subType) {
+     return `${user.department} ${className} ${subType.toUpperCase()} Semester ${semester} `;
+   }
+   return '';
+ };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    try {
-      setFormData({ ...formData, selectedQuestion: questions });
-      let feedbackTitle;
-      if (feedbackType === 'academic') {
-        feedbackTitle = generateFeedbackTitle();
-        if (!feedbackTitle) {
-          throw new Error('Feedback title is required.');
-        }
-      } else {
-        feedbackTitle = formData.feedbackTitle;
-        if (!feedbackTitle) {
-          throw new Error('Feedback title is required.');
-        }
-      }
+ useEffect(() => {
+   if (questions?.length > 0) {
+     setFormData({ ...formData, selectedQuestion: questions });
+   } 
+ }, [questions]);
 
-      const updatedFormData = {
-        ...formData,
-        feedbackTitle: feedbackTitle,
-      };
-  
-      await axios.post('/api/feedback', updatedFormData);
-      setSubmitted(true);
-    } catch (error) {
-      setError(error.response?.data?.error || error.message);
-    }
-  };
+ return (
+   <div className="flex justify-center items-center ">
+     <form onSubmit={handleSubmit} className="bg-white p-8 rounded-md shadow-md w-[90%]">
+       <h2 className="text-2xl font-semibold mb-4 text-center">Create Feedback</h2>
 
-  
-  
+       
+       {/* Feedback Type Selector */}
+       <div className="mb-4">
+         <Select value={feedbackType} onValueChange={(value) => setFeedbackType(value)}>
+           <SelectTrigger className="w-[180px]">
+             <SelectValue placeholder="Select a Feedback type" />
+           </SelectTrigger>
+           <SelectContent>
+             <SelectItem value="academic">Academic</SelectItem>
+             <SelectItem value="event">External</SelectItem>
+           </SelectContent>
+         </Select>
+       </div>
 
-  const generateFeedbackTitle = () => {
-    if (user && className && semester && subType) {
-      return `${user.department} ${className} ${subType.toUpperCase()} Semester ${semester} `;
-    }
-    return '';
-  };
+       {feedbackType === 'academic' && (
+         <div className="mb-4">
+           <Select value={subType} onValueChange={(value) => setSubType(value)}>
+             <SelectTrigger className="w-[180px]">
+               <SelectValue placeholder="Select a Feedback Subtype" />
+             </SelectTrigger>
+             <SelectContent>
+               <SelectItem value="theory">Theory</SelectItem>
+               <SelectItem value="practical">Practical</SelectItem>
+             </SelectContent>
+           </Select>
+         </div>
+       )}
 
-  return (
-    <div className="flex justify-center items-center ">
-      <form onSubmit={handleSubmit} className="bg-white p-8 rounded-md shadow-md w-[90%]">
-        <h2 className="text-2xl font-semibold mb-4 text-center">Create Feedback</h2>
-        {error && <p className="text-red-500 mb-4">{error}</p>}
-        
-        {/* Feedback Type Selector */}
-        <div className="mb-4">
-          <Select defaultValue={feedbackType} onValueChange={(value) => setFeedbackType(value)}>
-            <SelectTrigger className="w-[180px]">
-              <SelectValue placeholder="Select a Feedback type" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="academic">Academic</SelectItem>
-              <SelectItem value="event">External</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
+       <div className="mb-4">
+         <Select value={className} onValueChange={(value) => setClassName(value)}>
+           <SelectTrigger className="w-[180px]">
+             <SelectValue placeholder="Select a Class name" />
+           </SelectTrigger>
+           <SelectContent>
+             {user && user.classes.map((className) => (
+               <SelectItem key={className} value={className}>
+                 {className}
+               </SelectItem>
+             ))}
+           </SelectContent>
+         </Select>
+       </div>
 
-        {/* Feedback Subtype Selector (only for academic feedback) */}
-        {feedbackType === 'academic' && (
-          <div className="mb-4">
-            <Select defaultValue={subType} onValueChange={(value) => setSubType(value)}>
-              <SelectTrigger className="w-[180px]">
-                <SelectValue placeholder="Select a Feedback Subtype" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="theory">Theory</SelectItem>
-                <SelectItem value="practical">Practical</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-        )}
-
-        {/* Class Name Selector */}
-        <div className="mb-4">
-          <Select defaultValue={className} onValueChange={(value) => setClassName(value)}>
-            <SelectTrigger className="w-[180px]">
-              <SelectValue placeholder="Select a Class name" />
-            </SelectTrigger>
-            <SelectContent>
-              {user && user.classes.map((className) => (
-                <SelectItem key={className} value={className}>
-                  {className}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-
-        {/* Semester Selector */}
-        <div className="mb-4">
-          <Select defaultValue={semester} onValueChange={(value) => setSemester(value)}>
-            <SelectTrigger className="w-[180px]">
-              <SelectValue placeholder="Select a Semester" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="I">Semester I</SelectItem>
-              <SelectItem value="II">Semester II</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-
-        {/* Feedback Title Input */}
+       <div className="mb-4">
+         <Select value={semester} onValueChange={(value) => setSemester(value)}>
+           <SelectTrigger className="w-[180px]">
+             <SelectValue placeholder="Select a Semester" />
+           </SelectTrigger>
+           <SelectContent>
+             <SelectItem value="I">Semester I</SelectItem>
+             <SelectItem value="II">Semester II</SelectItem>
+           </SelectContent>
+         </Select>
+       </div>
         <div className="mb-4">
           <label htmlFor="feedbackTitle" className="block mb-2">Feedback Title:</label>
           <Input
@@ -223,8 +219,6 @@ const FeedbackForm = () => {
             placeholder="Enter feedback title"
           />
         </div>
-
-        {/* Subject and Faculty Inputs (only for academic feedback) */}
         {feedbackType === 'academic' && formData.subjects.map((subject, index) => (
           <div className="mb-4 flex gap-4" key={index}>
             <label htmlFor={`subject${index}`} className="block mb-2">Subject {index + 1}:</label>
@@ -266,24 +260,8 @@ const FeedbackForm = () => {
           <Button type="button" onClick={handleAddSubject}>
           Add Subject
         </Button>
-        
         )}
-
-         <div className="mb-4">
-          <Select defaultValue={formData.selectedQuestion} onValueChange={(value) => handleQuestionChange(value)}>
-            <SelectTrigger className="w-[180px]">
-              <SelectValue placeholder="Select a Question">Questions</SelectValue>
-            </SelectTrigger>
-            <SelectContent>
-              {questions.map((question) => (
-                <SelectItem key={question._id} value={question}>
-                  {question.feedbackType}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div> 
-
+        
         <div className="mb-4">
           <label htmlFor="students" className="block mb-2">Number of Students:</label>
           <Input
@@ -296,7 +274,6 @@ const FeedbackForm = () => {
             placeholder="Enter number of students"
           />
         </div>
-
         <div className="mb-4">
           <label htmlFor="pwd" className="block mb-2">Password:</label>
           <Input
@@ -309,7 +286,6 @@ const FeedbackForm = () => {
             placeholder="Enter password"
           />
         </div>
-
         <div className="mb-4">
           <label htmlFor="isActive" className="block mb-2">Activate Feedback:</label>
           <input
@@ -326,17 +302,13 @@ const FeedbackForm = () => {
           <Button variant="secondary" onClick={handleCancel} varient="ghost" >
           Cancel
         </Button>
-       
         <Button type="submit">
           Submit Feedback
         </Button></div>
         
-        {submitted && (
-          <p className="mt-4 text-green-600">Feedback submitted successfully!</p>
-        )}
+       
       </form>
     </div>
   );
 };
-
 export default FeedbackForm;

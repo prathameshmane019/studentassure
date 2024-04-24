@@ -18,13 +18,31 @@ export async function POST(req) {
     }
 }
 
-export async function GET() {
+export async function GET(req) {
     try {
+        const {searchParams} = new URL(req.url);
+        const type = searchParams.get("type");
         await connectMongoDB();
-        const question = await Questions.find();
 
-        console.log("Fetched Data Successfully", question);
-        return NextResponse.json(question);
+        let questions
+        if(type){
+            if(type==="academic"){
+                const subtype = searchParams.get("subtype");
+        
+                 questions = await Questions.findOne({
+                    feedbackType:type,
+                    subType:subtype});
+                 } 
+                 if(type==="event"){
+                    questions = await Questions.findOne({
+                       feedbackType:type});
+                    }
+        }
+        else{
+            questions = await Questions.find();
+        }
+        console.log("Fetched Data Successfully", questions);
+        return NextResponse.json(questions);
     } catch (error) {
         console.error("Error fetching departments:", error);
         return NextResponse.json({ error: "Failed to Fetch Departments" });

@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { connectMongoDB } from "@/lib/connectDb";
-import Feedback from "@/app/models/feedback";
+import Feedback from "@/models/feedback";
 
 export async function POST(req) {
     try {
@@ -28,3 +28,17 @@ export async function POST(req) {
         return NextResponse.json({ error: "Failed to create feedback" });
     }
 }
+
+export async function GET() {
+    try {
+        await connectMongoDB();
+        const feedbacks = await Feedback.find()
+        console.log("Feedback fetched Successfully");
+        console.log(feedbacks);
+        return NextResponse.json({  feedbacks  });
+    } catch (error) {
+        console.log(error);
+        return NextResponse.json({ error: "Failed to create feedback" });
+    }
+}
+
