@@ -133,7 +133,7 @@ const ResponseForm = () => {
 
     } catch (error) {
       setError('Failed to submit response. Please try again.');
-      toast.error('ailed to submit response. Please try again.');
+      toast.error('failed to submit response. Please try again.');
     }
   };
   const handleSubmitPassword = async (e) => {
