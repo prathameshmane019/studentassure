@@ -1,19 +1,21 @@
+
 "use client"
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import React, { useState, useEffect } from "react";
+import axios from "axios";
+import { Input } from "@/components/ui/input";
+ import { Table, TableHeader, TableColumn, TableBody, TableRow, TableCell } from "@nextui-org/react";
+ import { Button } from "@/components/ui/button";
 
 const DepartmentManager = () => {
   const [departments, setDepartments] = useState([]);
   const [editingDepartment, setEditingDepartment] = useState(null);
   const [formData, setFormData] = useState({
-    department: '',
-    username: '',
-    password: '',
-    classes: ''
+    department: "",
+    username: "",
+    password: "",
+    classes: "",
   });
+  const [showForm, setShowForm] = useState(false);
 
   useEffect(() => {
     fetchDepartments();
@@ -21,18 +23,18 @@ const DepartmentManager = () => {
 
   const fetchDepartments = async () => {
     try {
-      const response = await axios.get('/api/department');
+      const response = await axios.get("/api/department");
       setDepartments(response.data);
     } catch (error) {
-      console.error('Error fetching departments:', error);
+      console.error("Error fetching departments:", error);
     }
   };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prevState => ({
+    setFormData((prevState) => ({
       ...prevState,
-      [name]: value
+      [name]: value,
     }));
   };
 
@@ -40,77 +42,77 @@ const DepartmentManager = () => {
     e.preventDefault();
     try {
       const { classes, ...otherData } = formData;
-      const classesArray = classes.split(',').map(cls => cls.trim());
-      const payload = { ...otherData, classes: classesArray, department: formData.department }; // Include department in payload
+      const classesArray = classes.split(",").map((cls) => cls.trim());
+      const payload = { ...otherData, classes: classesArray };
       if (editingDepartment) {
         await axios.put(`/api/department/`, payload);
       } else {
-        await axios.post('/api/department', payload);
+        await axios.post("/api/department", payload);
       }
-      resetForm();
+      setShowForm(false);
       fetchDepartments();
     } catch (error) {
-      console.error('Error creating/updating department:', error);
-    }
-  };
-
-  const deleteDepartment = async (_id) => {
-    try { 
-      await axios.delete(`/api/department?_id=${_id}`);
-      fetchDepartments();
-    } catch (error) {
-      console.error('Error deleting department:', error);
+      console.error("Error creating/updating department:", error);
     }
   };
 
   const handleEdit = (department) => {
     setEditingDepartment(department);
-    console.log(formData);
     setFormData({
       department: department.department,
       username: department._id,
       password: department.password,
-      classes: department.classes.join(', ')
+      classes: department.classes.join(", "),
     });
-    setFormData(prevState => ({ ...prevState, department: department.department }));
+    setShowForm(true);
+  };
 
+  const deleteDepartment = async (departmentId) => {
+    try {
+      await axios.delete(`/api/department?_id=${departmentId}`);
+      fetchDepartments();
+    } catch (error) {
+      console.error("Error deleting department:", error);
+    }
   };
 
   const resetForm = () => {
     setFormData({
-      department: '',
-      username: '',
-      password: '',
-      classes: ''
+      department: "",
+      username: "",
+      password: "",
+      classes: "",
     });
     setEditingDepartment(null);
+    setShowForm(false);
   };
 
   return (
-    <>
-      <form onSubmit={handleSubmit}>
-        <div>
-          <label htmlFor="department">Department</label>
-          <Select
+    <div className="container mx-auto p-4 w-full h-screen">
+     {showForm && (
+  <div className="modal-overlay">
+    <div className="modal">
+      <form onSubmit={handleSubmit} className="p-6 bg-white rounded-lg shadow-lg">
+        <h2 className="text-xl font-bold mb-4">{editingDepartment ? "Update Department" : "Add Department"}</h2>
+        <div className="mb-4">
+          <label htmlFor="department" className="block text-sm font-medium text-gray-700">Department</label>
+          <select
             id="department"
-            defaultValue={formData.department}
-            onValueChange={(value) => setFormData(prevState => ({ ...prevState, department: value }))}
+            value={formData.department}
+            onChange={handleChange}
             name="department"
+            className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
           >
-            <SelectTrigger>
-              <SelectValue placeholder="Select a department" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="ENTC">ENTC</SelectItem>
-              <SelectItem value="CSE">CSE</SelectItem>
-              <SelectItem value="Mechanical">Mechanical</SelectItem>
-              <SelectItem value="Electrial">Electrial</SelectItem>
-              <SelectItem value="First Year">First Year</SelectItem>
-            </SelectContent>
-          </Select>
+            <option value="">Select a department</option>
+            <option value="ENTC">ENTC</option>
+            <option value="CSE">CSE</option>
+            <option value="Mechanical">Mechanical</option>
+            <option value="Electrical">Electrical</option>
+            <option value="First Year">First Year</option>
+          </select>
         </div>
-        <div>
-          <label htmlFor="username">Username</label>
+        <div className="mb-4">
+          <label htmlFor="username" className="block text-sm font-medium text-gray-700">Username</label>
           <Input
             id="username"
             type="text"
@@ -118,10 +120,12 @@ const DepartmentManager = () => {
             onChange={handleChange}
             name="username"
             required
+            variant="bordered"
+            className="mt-1 block w-full"
           />
         </div>
-        <div>
-          <label htmlFor="password">Password</label>
+        <div className="mb-4">
+          <label htmlFor="password" className="block text-sm font-medium text-gray-700">Password</label>
           <Input
             id="password"
             type="password"
@@ -129,10 +133,12 @@ const DepartmentManager = () => {
             onChange={handleChange}
             name="password"
             required
+            variant="bordered"
+            className="mt-1 block w-full"
           />
         </div>
-        <div>
-          <label htmlFor="classes">Classes</label>
+        <div className="mb-4">
+          <label htmlFor="classes" className="block text-sm font-medium text-gray-700">Classes</label>
           <Input
             id="classes"
             type="text"
@@ -140,30 +146,49 @@ const DepartmentManager = () => {
             onChange={handleChange}
             name="classes"
             required
+            variant="bordered"
+            className="mt-1 block w-full"
           />
         </div>
-        <Button type="submit">
-          {editingDepartment ? 'Update' : 'Create'}
-        </Button>
-        {editingDepartment && (
-          <Button type="button" onClick={resetForm}>
-            Cancel
-          </Button>
-        )}
+        <div className="flex justify-end">
+          <Button type="submit" className="mr-2">{editingDepartment ? "Update" : "Add"}</Button>
+          <Button type="button" variant="error" onClick={resetForm}>Cancel</Button>
+        </div>
       </form>
-      <div>
-        <h2>Departments</h2>
-        <ul>
-          {departments.map((department) => (
-            <li key={department._id}>
-              {department.department}
-              <Button onClick={() => handleEdit(department)}>Edit</Button>
-              <Button onClick={() => deleteDepartment(department._id)}>Delete</Button>
-            </li>
-          ))}
-        </ul>
+    </div>
+  </div>
+)}
+
+      <div className="w-full">
+        <h2 className="text-xl font-bold mb-4">Manage Department</h2>
+        <div className="w-full flex justify-end">
+          <Button onClick={() => setShowForm(true)}>Add Department</Button>
+        </div>
+        <Table removeWrapper aria-label="Department Table ">
+           <TableHeader>
+             <TableColumn>Department</TableColumn>
+             <TableColumn>Username</TableColumn>
+             <TableColumn>Password</TableColumn>
+             <TableColumn>Classes</TableColumn>
+             <TableColumn className="w-100 ">Actions</TableColumn>
+           </TableHeader>
+           <TableBody className="align-middle ">
+             {departments.map((department) => (
+               <TableRow className="align-middle " key={department._id}>
+                 <TableCell>{department.department}</TableCell>
+                 <TableCell>{department._id}</TableCell>
+                 <TableCell>{department.password}</TableCell>
+                 <TableCell>{department.classes.join(", ")}</TableCell>
+                 <TableCell>
+                   <Button className="m-4" onClick={() => handleEdit(department)}>Edit</Button>
+                   <Button className="m-4" onClick={() => deleteDepartment(department._id)}>Delete</Button>
+                 </TableCell>
+               </TableRow>
+             ))}
+           </TableBody>
+         </Table>
       </div>
-    </>
+    </div>
   );
 };
 
