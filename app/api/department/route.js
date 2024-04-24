@@ -8,7 +8,7 @@ export async function POST(req) {
         const data = await req.json();
 
         const { department, username, password, classes } = data;
-console.log(data);
+        console.log(data);
         const newDepartment = new Department({
             department,
             classes: classes, // Convert comma-separated string to array
