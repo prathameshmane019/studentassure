@@ -1,5 +1,3 @@
-import React from 'react'
-
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import Profile from '@ /components/Profile'; // Update the import path based on your project structure
@@ -11,7 +9,7 @@ const ProfilePage = () => {
   useEffect(() => {
     const fetchProfile = async () => {
       try {
-        const response = await axios.get('/api/profile'); // Replace with your API endpoint
+        const response = await axios.get('/api/profile'); // API endpoint to fetch profile data
         setProfile(response.data);
       } catch (err) {
         setError(err.response ? err.response.data.error : err.message);
@@ -38,4 +36,3 @@ const ProfilePage = () => {
 };
 
 export default ProfilePage;
-
