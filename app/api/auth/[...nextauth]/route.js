@@ -23,6 +23,9 @@ export const authOptions = ({
           console.log(department);
           if (department._id.startsWith("S")) {
             userRole = "superadmin";
+            id = department._id;
+            classes = department.classes;
+            departmentName = department.department; 
           } else if (department) {
             userRole = "department";
             id = department._id;
