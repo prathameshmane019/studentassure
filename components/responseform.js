@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { toast } from 'sonner';
+import { Button } from './ui/button';
 
 const ResponseForm = () => {
   const [feedbackData, setFeedbackData] = useState([]);
@@ -194,12 +195,12 @@ const ResponseForm = () => {
                       className="w-full px-3 py-2 border rounded-md focus:outline-none focus:border-blue-500"
                     />
                   </div>
-                  <button
+                  <Button
                     type="submit"
                     className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 focus:outline-none focus:bg-blue-600"
                   >
                     Submit Password
-                  </button>
+                  </Button>
                 </form>
               </div>
             )}
@@ -249,12 +250,12 @@ const ResponseForm = () => {
                       className="w-full px-3 py-2 border rounded-md focus:outline-none focus:border-blue-500"
                     />
                   </div>
-                  <button
+                  <Button
                     type="submit"
                     className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 focus:outline-none focus:bg-blue-600"
                   >
                     {currentSubjectIndex === selectedFeedback.subjects.length - 1 ? 'Submit Response' : 'Next Subject'}
-                  </button>
+                  </Button>
                 </form>
               </div>
 

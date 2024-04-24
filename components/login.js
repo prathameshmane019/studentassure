@@ -19,8 +19,8 @@ export default function LoginComponent() {
       router.replace("/admin");
     }
     
-    if (session?.user?.role === "admin") {
-      router.replace("/admin");      
+    if (session?.user?.role === "superadmin") {
+      router.replace("/super_admin");      
     }
     console.log(session);
   }, [session,router]);

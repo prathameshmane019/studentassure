@@ -1,7 +1,7 @@
 "use client"
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Select, SelectContent,SelectLabel, SelectItem, SelectTrigger, SelectValue,SelectGroup } from "@/components/ui/select";
 import { Button } from '@/components/ui/button';
 
 const EvaluationPage = () => {
@@ -130,14 +130,17 @@ const EvaluationPage = () => {
         <div className="mb-4">
           <Select defaultValue={selectedFeedbackId} onValueChange={(value) => setSelectedFeedback(value)}>
             <SelectTrigger className="w-[180px]">
-              <SelectValue >Select a Feedback</SelectValue>
+            <SelectValue placeholder="Select Feedback" />
             </SelectTrigger>
             <SelectContent>
+            <SelectGroup>
+            <SelectLabel>Feedback</SelectLabel>
               {feedbackData.map((feedback) => (
                 <SelectItem key={feedback._id} value={feedback}>
                   {feedback.feedbackTitle}
                 </SelectItem>
               ))}
+              </SelectGroup>
             </SelectContent>
           </Select>
         </div>
@@ -145,14 +148,17 @@ const EvaluationPage = () => {
         <div className="mb-4">
           <Select defaultValue={selectedSubject} onValueChange={(value) => setSelectedSubject(value)}>
             <SelectTrigger className="w-[180px]">
-              <SelectValue placeholder="Select a Subject" />
+            <SelectValue placeholder="Select subject" />
             </SelectTrigger>
             <SelectContent>
+            <SelectGroup>
+            <SelectLabel>Subject</SelectLabel>
               {selectedFeedback && selectedFeedback.subjects.map((subject) => (
                 <SelectItem key={subject._id} value={subject}>
                   {subject.subject}
                 </SelectItem>
               ))}
+              </SelectGroup>
             </SelectContent>
           </Select>
         </div>

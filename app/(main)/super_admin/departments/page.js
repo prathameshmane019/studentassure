@@ -24,7 +24,9 @@ const DepartmentManager = () => {
   const fetchDepartments = async () => {
     try {
       const response = await axios.get("/api/department");
-      setDepartments(response.data);
+      setDepartments(response.data.filter(
+        user => !user._id.startsWith("S")
+      ));
     } catch (error) {
       console.error("Error fetching departments:", error);
     }
