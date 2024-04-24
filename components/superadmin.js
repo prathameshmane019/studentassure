@@ -16,10 +16,6 @@ const sidebarItems = [
     icon: CgProfile,
   },
   {
-    name: "Manage Feedback",
-    href: "/super_admin/feedbacks",
-    icon: VscFeedback,
-  }, {
     name: "Manage Questions",
     href: "/super_admin/questions",
     icon: GrCircleQuestion,

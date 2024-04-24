@@ -108,6 +108,8 @@ const DepartmentManager = () => {
             <option value="CSE">CSE</option>
             <option value="Mechanical">Mechanical</option>
             <option value="Electrical">Electrical</option>
+            
+            <option value="Civil">Civil</option>
             <option value="First Year">First Year</option>
           </select>
         </div>
