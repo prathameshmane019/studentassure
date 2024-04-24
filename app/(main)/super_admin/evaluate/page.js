@@ -123,7 +123,7 @@ const EvaluationPage = () => {
         <div className="mb-4">
           <Select defaultValue={selectedFeedbackId} onValueChange={(value) => setSelectedFeedback(value)}>
             <SelectTrigger className="w-[180px]">
-              <SelectValue placeholder="Select a Feedback" />
+              <SelectValue  >Select a Feedback</SelectValue>
             </SelectTrigger>
             <SelectContent>
               {feedbackData && feedbackData.map((feedback) => (

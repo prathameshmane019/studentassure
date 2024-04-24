@@ -21,7 +21,9 @@ export const authOptions = ({
           const department = await Department.findOne({ _id: Id });
 
           console.log(department);
-          if (department) {
+          if (department._id.startsWith("S")) {
+            userRole = "superadmin";
+          } else if (department) {
             userRole = "department";
             id = department._id;
             classes = department.classes;
