@@ -175,7 +175,7 @@ const DepartmentManager = () => {
              <TableColumn className="w-100 ">Actions</TableColumn>
            </TableHeader>
            <TableBody className="align-middle ">
-             {departments.map((department) => (
+             {departments && departments.map((department) => (
                <TableRow className="align-middle " key={department._id}>
                  <TableCell>{department.department}</TableCell>
                  <TableCell>{department._id}</TableCell>
