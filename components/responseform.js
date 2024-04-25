@@ -258,7 +258,6 @@ const ResponseForm = () => {
                   </Button>
                 </form>
               </div>
-
             )}
           </>
         )}
@@ -266,5 +265,4 @@ const ResponseForm = () => {
     </div>
   );
 };
-
 export default ResponseForm;

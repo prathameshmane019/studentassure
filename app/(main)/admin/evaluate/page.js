@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Select, SelectContent,SelectLabel, SelectItem, SelectTrigger, SelectValue,SelectGroup } from "@/components/ui/select";
 import { Button } from '@/components/ui/button';
+import { useUser } from '@/app/context/UserContext';
 
 const EvaluationPage = () => {
   const [feedbackData, setFeedbackData] = useState([]);
@@ -10,7 +11,18 @@ const EvaluationPage = () => {
   const [selectedSubject, setSelectedSubject] = useState('');
   const [selectedFeedback, setSelectedFeedback] = useState(null);
   const [response, setResponses] = useState([]);
-  const [userDepartment, setUserDepartment] = useState('CSE'); // Replace with actual user department or fetch from authentication
+  const [userDepartment, setUserDepartment] = useState(''); // Replace with actual user department or fetch from authentication
+
+
+  const user = useUser();
+  
+
+  useEffect(() => {
+    if (user) {
+      setUserDepartment(user.department)
+      console.log(userDepartment);
+    }    
+  }, [user]);
 
   const printDiv = () => {
     const printContents = document.getElementById('table-to-print').innerHTML;
@@ -33,7 +45,7 @@ const EvaluationPage = () => {
       try {
         const response = await axios.get('/api/feedback');
         const filteredFeedbackData = response.data.feedbacks.filter(
-          feedback => feedback.feedbackTitle.includes(userDepartment)
+          feedback => (feedback.feedbackTitle.includes(userDepartment) && !feedback.isActive)
         );
         setFeedbackData(filteredFeedbackData);
       } catch (error) {
