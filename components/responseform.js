@@ -1,8 +1,11 @@
+
+
 "use client"
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { toast } from 'sonner';
 import { Button } from './ui/button';
+import { useRouter } from 'next/navigation';
 
 const ResponseForm = () => {
   const [feedbackData, setFeedbackData] = useState([]);
@@ -18,6 +21,7 @@ const ResponseForm = () => {
   const [isPasswordVerified, setIsPasswordVerified] = useState(false);
 
   const [password, setPassword] = useState('');
+  const router =useRouter()
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
@@ -55,34 +59,28 @@ const ResponseForm = () => {
 
   const handleNextSubject = (e) => {
     e.preventDefault();
-    if (currentSubjectIndex < selectedFeedback.subjects.length - 1) {
-      setCurrentSubjectIndex((prevIndex) => prevIndex + 1);
+    const currentResponses = formData.responses[currentSubjectIndex];
+    const hasEmptyRating = currentResponses.ratings.some(rating => !rating);
+    if (!hasEmptyRating) {
+      if (currentSubjectIndex < selectedFeedback.subjects.length - 1) {
+        setCurrentSubjectIndex((prevIndex) => prevIndex + 1);
+      } else {
+        handleSubmit(e);
+      }
     } else {
-      handleSubmit(e);
+      setError('Please rate all questions before proceeding');
     }
   };
+
   const handleRatingChange = (subjectIndex, questionIndex, rating) => {
     setFormData((prevFormData) => {
-      const updatedResponses = prevFormData.responses ? [...prevFormData.responses] : [];
-
-      let subjectResponse = updatedResponses[subjectIndex];
-
-      if (!subjectResponse) {
-        subjectResponse = {
-          subject_id: selectedFeedback.subjects[subjectIndex]._id,
-          ratings: [],
-          suggestions: '',
-        };
-        updatedResponses[subjectIndex] = subjectResponse;
-      }
-
-      const updatedRatings = subjectResponse.ratings ? [...subjectResponse.ratings] : [];
-
+      const updatedResponses = [...prevFormData.responses];
+      const updatedRatings = [...updatedResponses[subjectIndex].ratings];
       updatedRatings[questionIndex] = rating;
-
-      subjectResponse.ratings = updatedRatings;
-      updatedResponses[subjectIndex] = subjectResponse;
-      console.log(updatedResponses);
+      updatedResponses[subjectIndex] = {
+        ...updatedResponses[subjectIndex],
+        ratings: updatedRatings,
+      };
       return {
         ...prevFormData,
         responses: updatedResponses,
@@ -93,24 +91,11 @@ const ResponseForm = () => {
 
   const handleSuggestionsChange = (subjectIndex, suggestions) => {
     setFormData((prevFormData) => {
-      const updatedResponses = prevFormData.responses ? [...prevFormData.responses] : [];
-
-      let subjectResponse = updatedResponses[subjectIndex];
-
-      if (!subjectResponse) {
-        subjectResponse = {
-          subject_id: selectedFeedback.subjects[subjectIndex]._id,
-          ratings: [],
-          suggestions: '',
-        };
-        updatedResponses[subjectIndex] = subjectResponse;
-      }
-
+      const updatedResponses = [...prevFormData.responses];
       updatedResponses[subjectIndex] = {
-        ...subjectResponse,
+        ...updatedResponses[subjectIndex],
         suggestions,
       };
-      console.log(updatedResponses);
       return {
         ...prevFormData,
         responses: updatedResponses,
@@ -124,8 +109,12 @@ const ResponseForm = () => {
       const response = await axios.post('/api/response', {
         feedback_id: formData.feedback_id,
         responses: formData.responses,
+
       });
       setSubmittedResponses([...submittedResponses, response.data]);
+
+      toast.success("Feedback submitted successfully")
+      router.replace("/")
       setFormData({
         feedback_id: '',
         responses: [],
@@ -134,7 +123,7 @@ const ResponseForm = () => {
 
     } catch (error) {
       setError('Failed to submit response. Please try again.');
-      toast.error('failed to submit response. Please try again.');
+      toast.error('Failed to submit response. Please try again.');
     }
   };
   const handleSubmitPassword = async (e) => {
@@ -169,6 +158,7 @@ const ResponseForm = () => {
                 value={formData.feedback_id}
                 onChange={(e) => handleSelectFeedback(e.target.value)}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                required
               >
                 <option value="">Select Feedback</option>
                 {feedbackData.map((feedback) => (
@@ -191,8 +181,8 @@ const ResponseForm = () => {
                       name="password"
                       value={password}
                       onChange={(e) => setPassword(e.target.value)} // Allow user to type password
-          
                       className="w-full px-3 py-2 border rounded-md focus:outline-none focus:border-blue-500"
+                      required
                     />
                   </div>
                   <Button
@@ -228,6 +218,7 @@ const ResponseForm = () => {
                               checked={formData.responses[currentSubjectIndex]?.ratings[qIndex] === rating}
                               onChange={() => handleRatingChange(currentSubjectIndex, qIndex, rating)}
                               className="mr-2"
+                              required
                             />
                             <label htmlFor={`${currentSubjectIndex}-${qIndex}-${rating}`} className="mr-4 text-gray-700">
                               {rating}
