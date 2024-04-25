@@ -7,18 +7,18 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useUser } from "@/app/context/UserContext";
 import { toast } from 'sonner';
 import { Switch } from "@/components/ui/switch"
+
 import {
   Table,
   TableBody,
-  TableCaption,
   TableCell,
-  TableFooter,
   TableHead,
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
 const FeedbackForm = () => {
 
+  const [userDepartment, setUserDepartment] = useState('');
   const [showFeedbackForm, setShowFeedbackForm] = useState(false);
   const [feedbacks, setFeedbacks] = useState([]);
   const [academicYear, setAcademicYear] = useState('');
@@ -37,6 +37,14 @@ const FeedbackForm = () => {
   });
 
   const user = useUser();
+
+
+  useEffect(() => {
+    if (user) {
+      setUserDepartment(user.department)
+    }    
+  }, [user]);
+
 
   useEffect(() => {
     if (feedbackType && subType) {
@@ -128,6 +136,7 @@ const FeedbackForm = () => {
           toast.error('Feedback title is required.');
           throw new Error('Feedback title is required.');
         }
+        fetchFeedbacks()
         setShowFeedbackForm(false)
       } else {
         feedbackTitle = formData.feedbackTitle;
@@ -172,13 +181,16 @@ const FeedbackForm = () => {
 
 
   useEffect(() => {
-    fetchFeedbacks();
-  }, []);
+    fetchFeedbacks(userDepartment);
+  }, [userDepartment]);
 
-  const fetchFeedbacks = async () => {
+  const fetchFeedbacks = async (department) => {
     try {
-      const response = await axios.get('/api/feedback');
-      setFeedbacks(response.data.feedbacks);
+      const response = await axios.get('/api/feedback')
+      const filteredFeedbackData = response.data.feedbacks.filter(
+        feedback => feedback.feedbackTitle.includes(department)
+      );
+      setFeedbacks(filteredFeedbackData);
     } catch (error) {
       console.error('Error fetching feedbacks:', error);
       toast.error('Failed to fetch feedbacks.');

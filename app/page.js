@@ -10,7 +10,6 @@ export default function Home() {
         <meta name="description" content="Student Assure - Feedback for College Students" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-
       <header className="bg-white shadow-md">
         <div className="container mx-auto flex justify-between items-center px-4 py-6">
           <div className='flex item-center gap-5'>
