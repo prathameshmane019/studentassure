@@ -16,12 +16,12 @@ const EvaluationPage = () => {
 
 
   const user = useUser();
-  
 
   useEffect(() => {
     if (user) {
       setSelectedDepartment(user.department)
-     
+      fetchFeedbackData();
+      
     }    
   }, [user]);
 
@@ -33,6 +33,18 @@ const EvaluationPage = () => {
     document.body.innerHTML = originalContents;
   };
 
+  const fetchFeedbackData = async () => {
+    try {
+      const response = await axios.get(`/api/feedback?department=${selectedDepartment}`);
+      const filteredFeedbackData = response.data.filter(
+        feedback => !feedback.isActive
+      );
+      setFeedbackData(filteredFeedbackData);
+    } catch (error) {
+      console.error('Error fetching feedback data:', error);
+    }
+  };
+
   const formatDate = (dateString) => {
     const date = new Date(dateString);
     const dd = String(date.getDate()).padStart(2, '0');
@@ -40,23 +52,6 @@ const EvaluationPage = () => {
     const yyyy = date.getFullYear();
     return dd + "/" + mm + "/" + yyyy;
   };
-
-  useEffect(() => {
-    const fetchFeedbackData = async () => {
-      try {
-        const response = await axios.get('/api/feedback');
-        const filteredFeedbackData = response.data.feedbacks.filter(
-          feedback => !feedback.isActive
-        );
-        setFeedbackData(filteredFeedbackData);
-      } catch (error) {
-        console.error('Error fetching feedback data:', error);
-      }
-    };
-
-    fetchFeedbackData();
-  }, []);
-
   useEffect(() => {
     if (selectedFeedback) {
       setSelectedFeedbackId(selectedFeedback._id)
@@ -204,8 +199,8 @@ const EvaluationPage = () => {
                 <SelectValue placeholder="Select feedback" />
               </SelectTrigger>
               <SelectContent>
-                {filteredFeedbackData &&
-                  filteredFeedbackData.map((feedback) => (
+                {feedbackData &&
+                  feedbackData.map((feedback) => (
                     <SelectItem key={feedback._id} value={feedback}>{feedback.feedbackTitle}
                     </SelectItem>
                   ))}

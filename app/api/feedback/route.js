@@ -6,19 +6,8 @@ export async function POST(req) {
     try {
         await connectMongoDB();
         const data = await req.json();
-        console.log(data);
-
-        const { feedbackTitle, subjects, selectedQuestion, students, pwd, isActive,department } = data;       
-        console.log(selectedQuestion);
-        const newFeedback = new Feedback({
-            feedbackTitle,
-            subjects,
-            questions:selectedQuestion,
-            students,
-            pwd,
-            department,
-            isActive: isActive || false, 
-        });
+        console.log(data);    
+        const newFeedback = new Feedback(data);
 
         await newFeedback.save();
         console.log("Feedback Created Successfully");
@@ -37,7 +26,7 @@ export async function GET(req) {
         await connectMongoDB();
         let feedbacks
         
-         feedbacks =  await Feedback.find({department:department})
+         feedbacks = await Feedback.find({department:department})
         console.log("Feedback fetched Successfully");
         console.log(feedbacks);
         return NextResponse.json(feedbacks,{status:200});
