@@ -18,7 +18,6 @@ const Evaluation = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      // Fetch feedback data based on feedbackId and facultyName
       console.log(formData);
       await axios.post('/api/feedback', formData);
       const data = await response.json();

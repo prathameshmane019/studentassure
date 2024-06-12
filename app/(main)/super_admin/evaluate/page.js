@@ -34,7 +34,7 @@ const EvaluationPage = () => {
     const fetchFeedbackData = async () => {
       try {
         const response = await axios.get('/api/feedback');
-        const filteredFeedbackData = response.data.feedbacks.filter(
+        const filteredFeedbackData = response.data.filter(
           feedback => !feedback.isActive
         );
         setFeedbackData(filteredFeedbackData);
@@ -127,6 +127,7 @@ const EvaluationPage = () => {
       feedback.feedbackTitle.includes(` ${selectedDepartment} `)
     )
     : feedbackData;
+    
   const calculateEvaluationPointForSubject = (questionIndex, subject) => {
     let totalPoints = 0;
     let totalRatings = 0;
