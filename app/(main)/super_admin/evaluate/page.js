@@ -42,7 +42,6 @@ const EvaluationPage = () => {
         console.error('Error fetching feedback data:', error);
       }
     };
-
     fetchFeedbackData();
   }, []);
 
@@ -193,7 +192,7 @@ const EvaluationPage = () => {
               </SelectTrigger>
               <SelectContent>
                 {feedbackData &&
-                  Array.from(new Set(feedbackData.map((feedback) => feedback.feedbackTitle.split(' ')[1]))).map(
+                feedbackData?.department?.map(
                     (department) => (
                       <SelectItem key={department} value={department}>
                         {department}

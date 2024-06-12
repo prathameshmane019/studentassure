@@ -8,7 +8,7 @@ export async function POST(req) {
         const data = await req.json();
         console.log(data);
 
-        const { feedbackTitle, subjects, selectedQuestion, students, pwd, isActive } = data;       
+        const { feedbackTitle, subjects, selectedQuestion, students, pwd, isActive,department } = data;       
         console.log(selectedQuestion);
         const newFeedback = new Feedback({
             feedbackTitle,
@@ -16,6 +16,7 @@ export async function POST(req) {
             questions:selectedQuestion,
             students,
             pwd,
+            department,
             isActive: isActive || false, 
         });
 

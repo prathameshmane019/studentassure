@@ -22,7 +22,7 @@ const departmentSchema = new Schema(
     ,
   },
   {
-    timestamps: true, // Automatically add createdAt and updatedAt fields
+    timestamps: true, 
   }
 );
 

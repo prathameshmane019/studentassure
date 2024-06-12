@@ -33,16 +33,17 @@ const FeedbackForm = () => {
     subjects: [{ subject: '', faculty: '', _id: '' }],
     students: '',
     pwd: '',
+    department:'',
     isActive: false,
   });
 
   const user = useUser();
 
-
   useEffect(() => {
     if (user) {
       setUserDepartment(user.department)
-    }    
+      setFormData({ ...formData, department: user.department });
+    }
   }, [user]);
 
 
@@ -81,11 +82,13 @@ const FeedbackForm = () => {
       const newSubjects = [...formData.subjects];
       newSubjects[index].subject = value;
       setFormData({ ...formData, subjects: newSubjects });
-    } else if (name.startsWith('faculty')) {
+    }
+    else if (name.startsWith('faculty')) {
       const newSubjects = [...formData.subjects];
       newSubjects[index].faculty = value;
       setFormData({ ...formData, subjects: newSubjects });
-    } else if (name.startsWith('_id')) {
+    }
+    else if (name.startsWith('_id')) {
       const newSubjects = [...formData.subjects];
       newSubjects[index]._id = value;
       setFormData({ ...formData, subjects: newSubjects });
@@ -121,6 +124,7 @@ const FeedbackForm = () => {
       subjects: [{ subject: '', faculty: '', _id: '' }],
       students: '',
       pwd: '',
+      department:"",
       isActive: false,
     });
 
@@ -150,7 +154,7 @@ const FeedbackForm = () => {
         ...formData,
         feedbackTitle: feedbackTitle,
       };
-
+      console.log(updatedFormData);
       await axios.post('/api/feedback', updatedFormData);
       handleCancel()
       toast.success("Feedback created successfully")
