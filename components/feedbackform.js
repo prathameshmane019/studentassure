@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue,SelectGroup,SelectLabel } from "@/components/ui/select";
 import { useUser } from "@/app/context/UserContext";
 import { toast } from 'sonner';
 import { Switch } from "@/components/ui/switch"
@@ -16,7 +16,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import { SelectLabel } from '@radix-ui/react-select';
 
 const FeedbackForm = () => {
   const [userDepartment, setUserDepartment] = useState('');
@@ -272,11 +271,13 @@ const FeedbackForm = () => {
                   <SelectValue placeholder="Select a Class name" />
                 </SelectTrigger>
                 <SelectContent>
+                <SelectGroup>
                 <SelectLabel>Department</SelectLabel>
                   <SelectItem value="All">All</SelectItem>
                   <SelectItem value="FY">FY</SelectItem>
                   <SelectItem value="SY">SY</SelectItem>
                   <SelectItem value="TY">TY</SelectItem>
+                  </SelectGroup>
                 </SelectContent>
               </Select>
             </div>
@@ -287,9 +288,11 @@ const FeedbackForm = () => {
                   <SelectValue placeholder="Select a Semester" />
                 </SelectTrigger>
                 <SelectContent>
+                <SelectGroup>
                   <SelectLabel>Semister</SelectLabel>
                   <SelectItem value="1">Semester 1</SelectItem>
                   <SelectItem value="2">Semester 2</SelectItem>
+                  </SelectGroup>
                 </SelectContent>
               </Select>
             </div>
@@ -300,6 +303,7 @@ const FeedbackForm = () => {
                   <SelectValue placeholder="Select an Academic Year" />
                 </SelectTrigger>
                 <SelectContent>
+
                   {academicYearOptions?.map((option, index) => (
                     <SelectItem key={index} value={option}>{option}</SelectItem>
                   ))}
