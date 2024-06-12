@@ -1,5 +1,3 @@
-
-
 "use client"
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
@@ -26,9 +24,9 @@ const ResponseForm = () => {
     const fetchData = async () => {
       setLoading(true);
       try {
-        const response = await axios.get('/api/feedback');
+        const response = await axios.get('/api/fetchFeedback');
 
-        setFeedbackData(response.data.filter(feedback => feedback.isActive && feedback.students !== feedback.responses.length));
+        setFeedbackData(response.data);
 
       } catch (error) {
         setError('Error fetching feedback data');

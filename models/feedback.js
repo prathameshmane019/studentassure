@@ -11,7 +11,7 @@ const feedbackSchema = new Schema(
       type: String,
     },
     feedbackType: {
-      type: String,
+      type: String
     },
     subjects: [
       {

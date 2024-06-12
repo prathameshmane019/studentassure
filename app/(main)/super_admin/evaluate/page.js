@@ -12,7 +12,7 @@ const EvaluationPage = () => {
   const [selectedFeedback, setSelectedFeedback] = useState(null);
   const [response, setResponses] = useState([]);
   const [selectedDepartment, setSelectedDepartment] = useState('');
-  const [feedbackMode, setFeedbackMode] = useState('individual');
+  const [feedbackMode, setFeedbackMode] = useState('cumulative');
 
   const printDiv = () => {
     const printContents = document.getElementById('table-to-print').innerHTML;
@@ -216,7 +216,7 @@ const EvaluationPage = () => {
               </SelectContent>
             </Select>
           </div>
-          {selectedFeedbackId && (
+          {selectedFeedback?.feedbackType=="academic" && (
             <div>
               <Select
                 defaultValue={feedbackMode}
@@ -300,7 +300,7 @@ const EvaluationPage = () => {
           </div>
         )}
 
-        {feedbackMode === 'cumulative' && (
+{(selectedFeedback?.feedbackType=="event" || feedbackMode === 'cumulative') && (
           <div id="table-to-print" className="bg-white rounded-lg shadow-lg p-6">
             <h2 className="text-2xl font-bold mb-4">Cumulative Feedback</h2>
             <table className="w-full table-auto">
@@ -315,7 +315,7 @@ const EvaluationPage = () => {
                 </tr>
               </thead>
               <tbody>
-                {selectedFeedback.questions.map((question, questionIndex) => (
+                {selectedFeedback && selectedFeedback?.questions?.map((question, questionIndex) => (
                   <tr key={questionIndex}>
                     <td className="border px-4 py-2">{question}</td>
                     {selectedFeedback && selectedFeedback.subjects && selectedFeedback.subjects.map((subject) => (

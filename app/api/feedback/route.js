@@ -8,7 +8,6 @@ export async function POST(req) {
         const data = await req.json();
         console.log(data);    
         const newFeedback = new Feedback(data);
-
         await newFeedback.save();
         console.log("Feedback Created Successfully");
         console.log(newFeedback);
@@ -23,6 +22,7 @@ export async function GET(req) {
     try {
         const {searchParams}= new URL(req.url);
         const department = searchParams.get("department");
+    
         await connectMongoDB();
         let feedbacks
         
