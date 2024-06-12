@@ -12,7 +12,7 @@ const EvaluationPage = () => {
   const [selectedFeedback, setSelectedFeedback] = useState(null);
   const [response, setResponses] = useState([]);
   const [selectedDepartment, setSelectedDepartment] = useState('');
-  const [feedbackMode, setFeedbackMode] = useState('individual');
+  const [feedbackMode, setFeedbackMode] = useState('cumulative');
 
 
   const user = useUser();
@@ -33,6 +33,7 @@ const EvaluationPage = () => {
     document.body.innerHTML = originalContents;
   };
 
+  console.log(selectedFeedback);
   const fetchFeedbackData = async () => {
     try {
       const response = await axios.get(`/api/feedback?department=${selectedDepartment}`);
@@ -88,7 +89,6 @@ const EvaluationPage = () => {
 
   const calculateRatingCounts = (questionIndex) => {
     const ratingCounts = { Poor: 0, Average: 0, Good: 0, VeryGood: 0, Excellent: 0 };
-
     response.forEach((feedbackEntry) => {
       const ratingsForSubject = feedbackEntry.ratings.find(rating => rating.subject_id === selectedSubject._id);
       if (ratingsForSubject) {
@@ -105,10 +105,9 @@ const EvaluationPage = () => {
 
     return ratingCounts;
   };
-
+console.log(selectedFeedback);
   const calculateTotalPoints = () => {
     let total = 0;
-
     response.forEach((feedbackEntry) => {
       const ratingsForSubject = feedbackEntry.ratings.find(rating => rating.subject_id === selectedSubject._id);
       if (ratingsForSubject) {
@@ -129,11 +128,7 @@ const EvaluationPage = () => {
     return totalPoints / (response.length * totalQuestions);
   };
 
-  const filteredFeedbackData = selectedDepartment
-    ? feedbackData.filter((feedback) =>
-      feedback.feedbackTitle.includes(` ${selectedDepartment} `)
-    )
-    : feedbackData;
+
   const calculateEvaluationPointForSubject = (questionIndex, subject) => {
     let totalPoints = 0;
     let totalRatings = 0;
@@ -192,10 +187,7 @@ const EvaluationPage = () => {
          
           <div>
             <Select
-              defaultValue={selectedFeedbackId}
-              onValueChange={(value) => setSelectedFeedback(value)}
-            >
-              <SelectTrigger className="w-[200px]">
+              defaultValue={selectedFeedbackId} onValueChange={(value) => setSelectedFeedback(value)}><SelectTrigger className="w-[200px]">
                 <SelectValue placeholder="Select feedback" />
               </SelectTrigger>
               <SelectContent>
@@ -207,7 +199,7 @@ const EvaluationPage = () => {
               </SelectContent>
             </Select>
           </div>
-          {selectedFeedbackId && (
+          {selectedFeedback?.feedbackType=="academic" && (
             <div>
               <Select
                 defaultValue={feedbackMode}
@@ -224,7 +216,7 @@ const EvaluationPage = () => {
             </div>
 
           )}
-          {feedbackMode === 'individual' && (
+          {feedbackMode == 'individual' && (
             <>
               <div>
                 <Select defaultValue={selectedSubject} onValueChange={(value) => setSelectedSubject(value)}>
@@ -284,14 +276,11 @@ const EvaluationPage = () => {
 
                 </tr>
               </tbody>
-              
-               
-            
             </table>
           </div>
         )}
 
-        {feedbackMode === 'cumulative' && (
+        {(selectedFeedback?.feedbackType=="event" || feedbackMode === 'cumulative') && (
           <div id="table-to-print" className="bg-white rounded-lg shadow-lg p-6">
             <h2 className="text-2xl font-bold mb-4">Cumulative Feedback</h2>
             <table className="w-full table-auto">
@@ -306,7 +295,7 @@ const EvaluationPage = () => {
                 </tr>
               </thead>
               <tbody>
-                {selectedFeedback.questions.map((question, questionIndex) => (
+                {selectedFeedback && selectedFeedback?.questions?.map((question, questionIndex) => (
                   <tr key={questionIndex}>
                     <td className="border px-4 py-2">{question}</td>
                     {selectedFeedback && selectedFeedback.subjects && selectedFeedback.subjects.map((subject) => (
