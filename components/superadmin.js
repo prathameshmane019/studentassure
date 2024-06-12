@@ -34,6 +34,11 @@ const sidebarItems = [
     href: "/super_admin/evaluate",
     icon: TbReportAnalytics,
   },
+  {
+    name: "Manage Feedback",
+    href: "/super_admin/feedbacks",
+    icon: VscFeedback,
+  }, 
 ];
 
 const Sidebar = () => {

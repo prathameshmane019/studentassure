@@ -28,7 +28,7 @@ const ResponseForm = () => {
       try {
         const response = await axios.get('/api/feedback');
 
-        setFeedbackData(response.data.feedbacks.filter(feedback => feedback.isActive && feedback.students !== feedback.responses.length));
+        setFeedbackData(response.data.filter(feedback => feedback.isActive && feedback.students !== feedback.responses.length));
 
       } catch (error) {
         setError('Error fetching feedback data');

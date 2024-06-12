@@ -120,11 +120,11 @@ const EvaluationPage = () => {
     return totalPoints / (response.length * totalQuestions);
   };
 
-  const filteredFeedbackData = selectedDepartment
-    ? feedbackData.filter((feedback) =>
-      feedback.feedbackTitle.includes(` ${selectedDepartment} `)
-    )
-    : feedbackData;
+  // const filteredFeedbackData = selectedDepartment
+  //   ? feedbackData.filter((feedback) =>
+  //     feedback.feedbackTitle.includes(` ${selectedDepartment} `)
+  //   )
+  //   : feedbackData;
 
   const calculateEvaluationPointForSubject = (questionIndex, subject) => {
     let totalPoints = 0;
@@ -190,11 +190,12 @@ const EvaluationPage = () => {
                 <SelectValue placeholder="Select a Department" />
               </SelectTrigger>
               <SelectContent>
+                <SelectItem key="Central" value="Central">CENTRAL</SelectItem>
                 <SelectItem key="CSE" value="CSE">CSE</SelectItem>
                 <SelectItem key="ENTC" value="ENTC">ENTC</SelectItem>
                 <SelectItem key="ELEC" value="ELEC">ELECTRICAL</SelectItem>
                 <SelectItem key="MECH" value="MECH">MECHANICAL</SelectItem>
-                <SelectItem key="CIVIL" value="CIVIL">CIVIL</SelectItem>
+                <SelectItem key="Civil" value="Civil">CIVIL</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -207,8 +208,8 @@ const EvaluationPage = () => {
                 <SelectValue placeholder="Select feedback" />
               </SelectTrigger>
               <SelectContent>
-                {filteredFeedbackData &&
-                  filteredFeedbackData.map((feedback) => (
+                {feedbackData &&
+                  feedbackData.map((feedback) => (
                     <SelectItem key={feedback._id} value={feedback}>{feedback.feedbackTitle}
                     </SelectItem>
                   ))}

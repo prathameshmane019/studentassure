@@ -10,6 +10,9 @@ const feedbackSchema = new Schema(
     department: {
       type: String,
     },
+    feedbackType: {
+      type: String,
+    },
     subjects: [
       {
         _id: {
