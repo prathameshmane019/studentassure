@@ -6,7 +6,6 @@ const Evaluation = () => {
     facultyName: '',
   });
   const [feedbackData, setFeedbackData] = useState(null);
-
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({
@@ -14,7 +13,6 @@ const Evaluation = () => {
       [name]: value,
     });
   };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {

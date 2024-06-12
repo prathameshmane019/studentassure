@@ -33,7 +33,7 @@ const EvaluationPage = () => {
   useEffect(() => {
     const fetchFeedbackData = async () => {
       try {
-        const response = await axios.get('/api/feedback');
+        const response = await axios.get(`/api/feedback?department=${selectedDepartment}`);
         const filteredFeedbackData = response.data.filter(
           feedback => !feedback.isActive
         );
@@ -43,7 +43,7 @@ const EvaluationPage = () => {
       }
     };
     fetchFeedbackData();
-  }, []);
+  }, [selectedDepartment]);
 
   useEffect(() => {
     if (selectedFeedback) {
@@ -75,7 +75,6 @@ const EvaluationPage = () => {
         }
       }
     });
-
     return totalRatings > 0 ? totalPoints / totalRatings : 0;
   };
 
@@ -112,7 +111,6 @@ const EvaluationPage = () => {
         });
       }
     });
-
     return total;
   };
 
@@ -127,7 +125,7 @@ const EvaluationPage = () => {
       feedback.feedbackTitle.includes(` ${selectedDepartment} `)
     )
     : feedbackData;
-    
+
   const calculateEvaluationPointForSubject = (questionIndex, subject) => {
     let totalPoints = 0;
     let totalRatings = 0;
@@ -192,14 +190,11 @@ const EvaluationPage = () => {
                 <SelectValue placeholder="Select a Department" />
               </SelectTrigger>
               <SelectContent>
-                {feedbackData &&
-                feedbackData?.department?.map(
-                    (department) => (
-                      <SelectItem key={department} value={department}>
-                        {department}
-                      </SelectItem>
-                    )
-                  )}
+                <SelectItem key="CSE" value="CSE">CSE</SelectItem>
+                <SelectItem key="ENTC" value="ENTC">ENTC</SelectItem>
+                <SelectItem key="ELEC" value="ELEC">ELECTRICAL</SelectItem>
+                <SelectItem key="MECH" value="MECH">MECHANICAL</SelectItem>
+                <SelectItem key="CIVIL" value="CIVIL">CIVIL</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -287,19 +282,19 @@ const EvaluationPage = () => {
                     <td className="border px-4 py-1">{calculateEvaluationPoint(index).toFixed(2)}</td>
                   </tr>
                 ))}
-                 <tr>
+                <tr>
                   <td colSpan="7" className="text-right font-bold pr-4">Total</td>
                   <td className="border px-4 py-2">{calculateTotalPoints()}</td>
-                  </tr>
-                 <tr>
+                </tr>
+                <tr>
                   <td colSpan="7" className="text-right font-bold pr-4">Average</td>
                   <td className="border px-4 py-2">{calculateAveragePoints().toFixed(2)}</td>
 
                 </tr>
               </tbody>
-              
-               
-            
+
+
+
             </table>
           </div>
         )}

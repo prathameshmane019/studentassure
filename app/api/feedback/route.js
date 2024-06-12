@@ -37,7 +37,7 @@ export async function GET(req) {
         await connectMongoDB();
         let feedbacks
         
-         feedbacks = department ? await Feedback.find({department:department}): await Feedback.find()
+         feedbacks =  await Feedback.find({department:department})
         console.log("Feedback fetched Successfully");
         console.log(feedbacks);
         return NextResponse.json(feedbacks,{status:200});
