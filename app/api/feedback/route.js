@@ -8,7 +8,7 @@ export async function POST(req) {
         const data = await req.json();
         console.log(data);
 
-        const { feedbackTitle, subjects, selectedQuestion, students, pwd, isActive } = data;       
+        const { feedbackTitle, subjects, selectedQuestion, students, pwd, isActive,department } = data;       
         console.log(selectedQuestion);
         const newFeedback = new Feedback({
             feedbackTitle,
@@ -16,6 +16,7 @@ export async function POST(req) {
             questions:selectedQuestion,
             students,
             pwd,
+            department,
             isActive: isActive || false, 
         });
 
@@ -29,16 +30,20 @@ export async function POST(req) {
     }
 }
 
-export async function GET() {
+export async function GET(req) {
     try {
+        const {searchParams}= new URL(req.url);
+        const department = searchParams.get("department");
         await connectMongoDB();
-        const feedbacks = await Feedback.find()
+        let feedbacks
+        
+         feedbacks =  await Feedback.find({department:department})
         console.log("Feedback fetched Successfully");
         console.log(feedbacks);
-        return NextResponse.json({  feedbacks  });
+        return NextResponse.json(feedbacks,{status:200});
     } catch (error) {
         console.log(error);
-        return NextResponse.json({ error: "Failed to create feedback" });
+        return NextResponse.json({ error: "Failed to create feedback" },{status:500});
     }
 }
 
@@ -50,13 +55,13 @@ export async function DELETE(req) {
         const deleted = await Feedback.findByIdAndDelete(_id);
 
         if (!deleted) {
-            return NextResponse.json({ error: "Feedback not found" });
+            return NextResponse.json({ error: "Feedback not found" },{status:404});
         }
         console.log("Feedback Deleted Successfully", deleted);
-        return NextResponse.json({ message: "Feedback Deleted Successfully" });
+        return NextResponse.json({ message: "Feedback Deleted Successfully" },{status:200});
     } catch (error) {
         console.error("Error deleting Feedback:", error);
-        return NextResponse.json({ error: "Failed to Delete" });
+        return NextResponse.json({ error: "Failed to Delete" },{status:500});
     }
 }
 export async function PUT(req) {

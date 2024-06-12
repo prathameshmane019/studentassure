@@ -1,12 +1,14 @@
 import mongoose from 'mongoose';
 
 const { Schema, model } = mongoose;
-
 const feedbackSchema = new Schema(
   {
     feedbackTitle: {
       type: String,
       required: true,
+    },
+    department: {
+      type: String,
     },
     subjects: [
       {

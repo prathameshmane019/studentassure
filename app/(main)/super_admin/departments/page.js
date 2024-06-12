@@ -2,8 +2,8 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { Input } from "@/components/ui/input";
- import { Table, TableHeader, TableColumn, TableBody, TableRow, TableCell } from "@nextui-org/react";
- import { Button } from "@/components/ui/button";
+import { Table, TableHeader, TableColumn, TableBody, TableRow, TableCell } from "@nextui-org/react";
+import { Button } from "@/components/ui/button";
 
 const DepartmentManager = () => {
   const [departments, setDepartments] = useState([]);
