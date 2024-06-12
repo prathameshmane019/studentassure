@@ -9,6 +9,7 @@ import {toast} from 'sonner'
 export default function LoginComponent() {
 
   const [isVisible, setIsVisible] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [userId, setUserId] = useState('');
   const [password, setPassword] = useState('');
   const toggleVisibility = () => setIsVisible(!isVisible);
@@ -27,6 +28,7 @@ export default function LoginComponent() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setIsLoading(true);
     try {
       const result = await signIn('credentials', {
         userId,
@@ -37,10 +39,15 @@ export default function LoginComponent() {
       if (result.ok) {
         console.log('Login Successful !');
         toast.success('Login Successful');
+      } else {
+        toast.error(result.error || 'Login failed');
       }
     } catch (error) {
       console.error('Failed to login', error);
       toast.error('Failed to login');
+    }
+    finally {
+      setIsLoading(false);
     }
   };
 
@@ -64,28 +71,48 @@ export default function LoginComponent() {
             placeholder="User ID"
           />
           <Input
+            type={isVisible ? 'text' : 'password'}
             label="Password"
             variant="bordered"
             placeholder="Password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
+            endContent={
+              <button
+                type="button"
+                onClick={toggleVisibility}
+                className="focus:outline-none"
+              >
+                {isVisible ? 'Hide' : 'Show'}
+              </button>
+            }
+            className="mb-4"
           />
+          
             <div className="flex justify-center space-x-4 mt-10">
-            <Button color="default" onClick={handleCancel} className="w-36">
+            <Button color="default"  onClick={handleCancel} className="w-36" disabled={isLoading}>
               Cancel
             </Button>
-            <Button color="primary" type="submit" className="w-36">
-              Login
+            <Button color="primary" type="submit" className="w-36" disabled={isLoading}>
+              {isLoading ? 'Loading...' : 'Login'}
             </Button>
           </div>
-          <div className="mt-2">
+          {/* <div className="mt-2">
             <p className="text-sm">
               Don&apos;t have an account?{' '}
               <Link href="/register" className="text-blue-500">
                 Register
               </Link>
             </p>
-          </div>
+          </div> */}
+          <div className="mt-2">
+           
+           <p className="text-sm">
+             <Link href="/reset_password" className="text-blue-500">
+               reset password
+             </Link>
+           </p>
+         </div>
         </div>
       </form>
     </div>
