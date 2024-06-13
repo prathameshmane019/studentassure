@@ -1,6 +1,6 @@
 "use client"
 import { useUser, useUserUpdate } from "@/app/context/UserContext";
-import { useState } from "react";
+
 
 function ProfilePage() {
   const user = useUser();
