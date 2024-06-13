@@ -40,10 +40,7 @@ const FeedbackForm = () => {
     feedbackType: ""
   });
 
- let user
- if(!user){
-   user = useUser();
- }
+  const user = useUser();
 
   useEffect(() => {
     if (user) {
