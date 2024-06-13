@@ -439,7 +439,8 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useUser } from "@/app/context/UserContext";
 import { toast } from 'sonner';
-import { Switch } from "@/components/ui/switch"
+import { Switch } from "@/components/ui/switch";
+import { Spinner } from "@nextui-org/react"; // Import Spinner
 
 import {
   Table,
@@ -448,7 +449,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table"
+} from "@/components/ui/table";
 
 const FeedbackForm = () => {
   const [userDepartment, setUserDepartment] = useState('');
@@ -456,6 +457,7 @@ const FeedbackForm = () => {
   const [feedbacks, setFeedbacks] = useState([]);
   const [academicYear, setAcademicYear] = useState('');
   const [subType, setSubType] = useState('');
+  const [loading, setLoading] = useState(false);
   const [feedbackType, setFeedbackType] = useState('');
   const [className, setClassName] = useState('');
   const [semester, setSemester] = useState('');
@@ -475,7 +477,7 @@ const FeedbackForm = () => {
 
   useEffect(() => {
     if (user) {
-      setUserDepartment(user.department)
+      setUserDepartment(user.department);
       setFormData({ ...formData, department: user.department });
     }
   }, [user]);
@@ -507,19 +509,18 @@ const FeedbackForm = () => {
       console.error('Error fetching questions:', error);
     }
   };
+
   const handleChange = (e, index) => {
     const { name, value } = e.target;
     if (name.startsWith('subject')) {
       const newSubjects = [...formData.subjects];
       newSubjects[index].subject = value;
       setFormData({ ...formData, subjects: newSubjects });
-    }
-    else if (name.startsWith('faculty')) {
+    } else if (name.startsWith('faculty')) {
       const newSubjects = [...formData.subjects];
       newSubjects[index].faculty = value;
       setFormData({ ...formData, subjects: newSubjects });
-    }
-    else if (name.startsWith('_id')) {
+    } else if (name.startsWith('_id')) {
       const newSubjects = [...formData.subjects];
       newSubjects[index]._id = value;
       setFormData({ ...formData, subjects: newSubjects });
@@ -527,14 +528,14 @@ const FeedbackForm = () => {
       setFormData({ ...formData, [name]: value });
     }
   };
-  
+
   const handleAddSubject = () => {
     setFormData({
       ...formData,
       subjects: [...formData.subjects, { subject: '', faculty: '', _id: '' }],
     });
   };
-  
+
   const handleRemoveSubject = (index) => {
     const newSubjects = formData.subjects.filter((_, i) => i !== index);
     setFormData({
@@ -542,7 +543,7 @@ const FeedbackForm = () => {
       subjects: newSubjects,
     });
   };
-  
+
   const handleCancel = () => {
     setFeedbackType('');
     setSubType('');
@@ -561,9 +562,10 @@ const FeedbackForm = () => {
       feedbackType: ""
     });
   };
-  
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true); // Set loading to true when submitting the form
     try {
       let feedbackTitle;
       if (feedbackType === 'academic') {
@@ -581,10 +583,9 @@ const FeedbackForm = () => {
           throw new Error('Feedback title is required.');
         }
       }
-  
-      // Filter out empty subjects for event feedback type
+
       const filteredSubjects = feedbackType === 'event' ? formData.subjects.filter(subject => subject.subject && subject.faculty && subject._id) : formData.subjects;
-  
+
       const updatedFormData = {
         ...formData,
         feedbackTitle: feedbackTitle,
@@ -597,34 +598,37 @@ const FeedbackForm = () => {
       toast.success("Feedback created successfully");
     } catch (error) {
       toast.error(error.response?.data?.error || error.message);
+    } finally {
+      setLoading(false); // Set loading to false after submitting
     }
   };
-  
+
   const generateFeedbackTitle = () => {
     if (user && className && semester && subType && academicYear) {
       return `${academicYear} ${user.department} ${className} ${subType.toUpperCase()} Semester ${semester}`;
     }
     return '';
   };
-  
+
   useEffect(() => {
     if (questions?.length > 0) {
       setFormData({ ...formData, questions: questions });
     }
   }, [questions]);
-  
+
   const currentYear = new Date().getFullYear();
   const academicYearOptions = [
     `${currentYear - 1}-${currentYear}`,
     `${currentYear}-${currentYear + 1}`,
     `${currentYear + 1}-${currentYear + 2}`
   ];
-  
+
   useEffect(() => {
     fetchFeedbacks(userDepartment);
   }, [userDepartment]);
-  
+
   const fetchFeedbacks = async (department) => {
+    setLoading(true); // Set loading to true when fetching feedbacks
     try {
       if (department) {
         const response = await axios.get(`/api/feedback?department=${department}`);
@@ -633,10 +637,13 @@ const FeedbackForm = () => {
     } catch (error) {
       console.error('Error fetching feedbacks:', error);
       toast.error('Failed to fetch feedbacks.');
+    } finally {
+      setLoading(false); // Set loading to false after fetching feedbacks
     }
   };
-  
+
   const handleDeleteFeedback = async (id) => {
+    setLoading(true); // Set loading to true when deleting feedback
     try {
       await axios.delete(`/api/feedback?_id=${id}`);
       setFeedbacks(feedbacks.filter(feedback => feedback._id !== id));
@@ -644,12 +651,14 @@ const FeedbackForm = () => {
     } catch (error) {
       console.error('Error deleting feedback:', error);
       toast.error('Failed to delete feedback.');
+    } finally {
+      setLoading(false); // Set loading to false after deleting feedback
     }
   };
-  
+
   const handleToggleIsActive = async (id, isActive) => {
+    setLoading(true); // Set loading to true when toggling feedback state
     try {
-      console.log(id, isActive);
       await axios.put(`/api/feedback?_id=${id}`, { isActive: !isActive });
       const updatedFeedbacks = feedbacks?.map(feedback => {
         if (feedback._id === id) {
@@ -662,9 +671,11 @@ const FeedbackForm = () => {
     } catch (error) {
       console.error('Error updating feedback state:', error);
       toast.error('Failed to update feedback state.');
+    } finally {
+      setLoading(false); // Set loading to false after toggling feedback state
     }
   };
-  
+
   return (
     <div className="flex flex-col items-center overflow-y-auto">
       {!showFeedbackForm && (
@@ -687,7 +698,7 @@ const FeedbackForm = () => {
                 </SelectContent>
               </Select>
             </div>
-  
+
             {feedbackType === 'academic' && (
               <div>
                 <Select value={subType} onValueChange={(value) => setSubType(value)}>
@@ -701,7 +712,7 @@ const FeedbackForm = () => {
                 </Select>
               </div>
             )}
-  
+
             <div>
               <Select value={className} onValueChange={(value) => setClassName(value)}>
                 <SelectTrigger className="w-full">
@@ -715,7 +726,7 @@ const FeedbackForm = () => {
                 </SelectContent>
               </Select>
             </div>
-  
+
             <div>
               <Select value={semester} onValueChange={(value) => setSemester(value)}>
                 <SelectTrigger className="w-full">
@@ -727,7 +738,7 @@ const FeedbackForm = () => {
                 </SelectContent>
               </Select>
             </div>
-  
+
             <div>
               <Select value={academicYear} onValueChange={(value) => setAcademicYear(value)}>
                 <SelectTrigger className="w-full">
@@ -740,7 +751,7 @@ const FeedbackForm = () => {
                 </SelectContent>
               </Select>
             </div>
-  
+
             <div>
               {feedbackType === 'event' && (
                 <Input
@@ -752,7 +763,7 @@ const FeedbackForm = () => {
                 />
               )}
             </div>
-  
+
             <div>
               <Input
                 type="number"
@@ -762,7 +773,7 @@ const FeedbackForm = () => {
                 onChange={handleChange}
               />
             </div>
-  
+
             <div>
               <Input
                 type="password"
@@ -772,7 +783,7 @@ const FeedbackForm = () => {
                 onChange={handleChange}
               />
             </div>
-  
+
             {feedbackType === 'academic' && (
               <div>
                 {formData.subjects.map((subject, index) => (
@@ -815,47 +826,54 @@ const FeedbackForm = () => {
               </div>
             )}
           </div>
-  
+
           <div className="mt-4 flex justify-between">
             <Button type="button" onClick={handleCancel}>Cancel</Button>
             <Button type="submit">Create Feedback</Button>
           </div>
         </form>
       )}
-  
+
       {!showFeedbackForm && (
         <div className="w-full mt-8">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Feedback Title</TableHead>
-                <TableHead>Number of Students</TableHead>
-                <TableHead>Active</TableHead>
-                <TableHead>Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-            {Array.isArray(feedbacks) && feedbacks?.map((feedback) => (
-                <TableRow key={feedback._id}>
-                  <TableCell>{feedback.feedbackTitle}</TableCell>
-                  <TableCell>{feedback.students}</TableCell>
-                  <TableCell>
-                    <Switch
-                      checked={feedback.isActive}
-                      onCheckedChange={() => handleToggleIsActive(feedback._id, feedback.isActive)}
-                    />
-                  </TableCell>
-                  <TableCell>
-                    <Button onClick={() => handleDeleteFeedback(feedback._id)}>Delete</Button>
-                  </TableCell>
+          {loading ? (
+            <div className="flex justify-center">
+              <Spinner /> {/* Use NextUI Spinner component */}
+            </div>
+          ) : (
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Feedback Title</TableHead>
+                  <TableHead>Number of Students</TableHead>
+                  <TableHead>Active</TableHead>
+                  <TableHead>Actions</TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+              </TableHeader>
+              <TableBody>
+                {Array.isArray(feedbacks) && feedbacks?.map((feedback) => (
+                  <TableRow key={feedback._id}>
+                    <TableCell>{feedback.feedbackTitle}</TableCell>
+                    <TableCell>{feedback.students}</TableCell>
+                    <TableCell>
+                      <Switch
+                        checked={feedback.isActive}
+                        onCheckedChange={() => handleToggleIsActive(feedback._id, feedback.isActive)}
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <Button onClick={() => handleDeleteFeedback(feedback._id)}>Delete</Button>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          )}
         </div>
       )}
     </div>
   );
-}
-  export default FeedbackForm;
-  
+};
+
+export default FeedbackForm;
+

@@ -3,6 +3,7 @@ import Image from "next/image";
 import { CgProfile } from "react-icons/cg";
 import { MdKeyboardArrowLeft, MdKeyboardArrowRight } from "react-icons/md";
 import { GrCircleQuestion } from "react-icons/gr";
+import { RxDashboard, RxExit } from "react-icons/rx";
 import { VscFeedback } from "react-icons/vsc";
 import { TbReportAnalytics } from "react-icons/tb";
 import Link from "next/link";
@@ -75,9 +76,9 @@ const router = useRouter()
               </li>
             );
           })}
-            <Button onClick={handleSignOut} color="primary" variant="flat">
-                Log Out
-              </Button>
+           <button onClick={handleSignOut} color="primary" width="30"  >
+           <RxExit className="w-5 h-5 ml-3 my-2 " />
+              </button>
         </ul>
       </aside>
     </div>
