@@ -12,12 +12,7 @@ const EvaluationPage = ({role}) => {
   const [responses, setResponses] = useState([]);
   const [feedbackMode, setFeedbackMode] = useState('cumulative');
   const [selectedDepartment, setSelectedDepartment] = useState('');
- 
-  let user
-  if(!user){
-    user = useUser();
-  }
-
+  const user = useUser();
   useEffect(() => {
     if (user && !feedbackData == [] && !role=="admin") {
       fetchFeedbackData(user.department);
