@@ -71,6 +71,8 @@
     position: relative;
   }
   
+  
+  
   .sidebar {
     width: 17rem;
     height: 100%;
@@ -107,21 +109,25 @@
     list-style: none;
   }
   
+  .sidebar__link:hover {
+    background-color: #efebeb;
+  }
   .sidebar__link {
     display: inline-block;
     font-size: 1rem;
     text-decoration: none;
-   
-    padding: 0.8rem 1rem;
+    padding: 0.4rem 0.8rem;
     display: flex;
     background-color: var(--color-sidebar-item);
     margin-bottom: 1rem;
     border-radius: 0.8rem;
+    align-items: center;
+    justify-content: start;
   }
   
   .sidebar__link--active {
     color: #fff;
-    background-color: #690bdc;
+    background-color: #212121;
   }
   
   .sidebar__icon {
@@ -159,6 +165,20 @@
     transform: translateX(50%);
     font-size: 2.1rem;
     background: #ffffff;
-    color: blueviolet;
+    color: #212121;
   
   }
+  @media print {
+    body * {
+      visibility: hidden;
+    }
+    #table-to-print, #table-to-print * {
+      visibility: visible;
+    }
+    #table-to-print {
+      position: absolute;
+      left: 0;
+      top: 0;
+    }
+  }
+  

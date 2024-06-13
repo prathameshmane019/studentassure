@@ -33,8 +33,9 @@ const feedbackSchema = new Schema(
        }
     ],
     responses: {
-      type: [String],
-      default: []
+      type: [Schema.Types.ObjectId],
+      default: [],
+      ref: 'Response'
     },
     students: {
       type: Number,

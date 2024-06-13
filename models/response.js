@@ -2,7 +2,10 @@ import mongoose from 'mongoose';
 
 const { Schema, model } = mongoose;
 const responseSchema = new Schema({
-    feedback_id: String,
+    feedback_id: {
+        type: String,  // Reference to the Feedback model
+        required: true,
+      },
     ratings: [{
         subject_id: String,
         suggestions: String,
