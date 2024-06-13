@@ -1,7 +1,7 @@
 "use client"
 import Image from "next/image";
 import { CgProfile } from "react-icons/cg";
-import { RxDashboard, RxExit } from "react-icons/rx";
+import {  RxExit } from "react-icons/rx";
 import { MdKeyboardArrowLeft, MdKeyboardArrowRight } from "react-icons/md";
 import { GrCircleQuestion } from "react-icons/gr";
 import { VscFeedback } from "react-icons/vsc";
@@ -9,7 +9,6 @@ import { TbReportAnalytics } from "react-icons/tb";
 import { MdOutlineManageAccounts } from "react-icons/md";
 import Link from "next/link";
 import { useState } from "react";
-import { Button } from "./ui/button";
 import { signOut } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { usePathname } from "next/navigation"; 
@@ -78,7 +77,7 @@ const Sidebar = () => {
                   href={href}
                 >
                   <span className="sidebar__icon">
-                    <Icon className="inline-block mr-2" />
+                    <Icon className="inline-block mx-auto" />
                   </span>
                   <span className="sidebar__name">{name}</span>
                 </Link>
@@ -93,5 +92,4 @@ const Sidebar = () => {
     </div>
   );
 };
-
 export default Sidebar;

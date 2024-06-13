@@ -1,15 +1,10 @@
 // pages/index.js
 import Link from 'next/link';
-import Head from 'next/head';
 
 export default function Home() {
   return (
     <div className="bg-gray-100 min-h-screen">
-      <Head>
-        <title>Savitribai Phule Shikshan Prasarak Mandal&#39;s SKN Sinhgad College of Engineering, Pandharpur - Student Assure</title>
-        <meta name="description" content="Student Assure - Feedback for College Students" />
-        <link rel="icon" href="/favicon.ico" />
-      </Head>
+      
       <header className="bg-white shadow-md">
         <div className="container mx-auto flex justify-between items-center px-4 py-6">
           <div className='flex item-center gap-5'>
