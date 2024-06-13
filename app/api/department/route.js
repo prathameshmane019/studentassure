@@ -82,3 +82,26 @@ export async function DELETE(req) {
         return NextResponse.json({ error: "Failed to Delete" });
     }
 }
+
+
+        const updatedDepartment = await Department.findByIdAndUpdate(
+            _id,
+            {
+             
+                department,
+               
+            },
+            { new: true }
+        );
+
+        if (!updatedDepartment) {
+            return NextResponse.json({ error: "Department  not found" }, { status: 404 });
+        }
+
+        console.log("Department updated successfully", updatedDepartment);
+        return NextResponse.json({ message: "Department updated successfully", department: updatedDepartment }, { status: 200 });
+    } catch (error) {
+        console.error("Error updating :", error);
+        return NextResponse.json({ error: "Failed to update faculty" }, { status: 500 });
+    }
+}
