@@ -111,6 +111,7 @@
   
   .sidebar__link:hover {
     background-color: #efebeb;
+    color:#212121;
   }
   .sidebar__link {
     display: inline-block;

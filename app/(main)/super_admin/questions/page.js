@@ -21,8 +21,8 @@ import { toast } from "sonner";
 import axios from "axios";
 
 const QuestionForm = () => {
-  const [feedbackType, setFeedbackType] = useState("");
-  const [subType, setSubType] = useState("");
+  const [feedbackType, setFeedbackType] = useState("academic");
+  const [subType, setSubType] = useState("theory");
   const [newQuestion, setNewQuestion] = useState("");
   const [questions, setQuestions] = useState([]);
   const [savedQuestions, setSavedQuestions] = useState([]);
@@ -38,10 +38,8 @@ const QuestionForm = () => {
       toast.error("Failed to fetch questions");
     }
   };
-
   useEffect(() => {
     fetchSavedQuestions();
-
   }, []);
 
   const handleQuestionChange = (index, value) => {
@@ -50,6 +48,9 @@ const QuestionForm = () => {
     setQuestions(updatedQuestions);
   };
 
+  const handleCancel = () => {
+    setQuestions([])
+  }
   const addQuestion = () => {
     if (newQuestion.trim()) {
       setQuestions([...questions, newQuestion]);
@@ -78,6 +79,7 @@ const QuestionForm = () => {
     }
   };
 
+
   const handleDeleteQuestionSet = async (questionSetId) => {
     try {
       // Send a DELETE request to your backend API to delete the question set
@@ -90,7 +92,7 @@ const QuestionForm = () => {
       toast.error("Failed to delete questions set");
     }
   };
-  
+
 
   return (
     <div className="container mx-auto my-8 h-screen">
@@ -135,66 +137,67 @@ const QuestionForm = () => {
                   </Select>
                 </div>
               )}
-              <div className="flex mb-4">
+              <div className="flex mb-4 align-middle ">
                 <Textarea
                   value={newQuestion}
                   onChange={(e) => setNewQuestion(e.target.value)}
                   className="flex-1 mr-2"
                   required
+                  placeholder="Enter questions here"
                 />
-                <Button type="button" onClick={addQuestion}>
+                <Button type="button"  onClick={addQuestion}>
                   Add
                 </Button>
               </div>
             </form>
           </CardContent>
           <CardFooter className="flex justify-between">
-            <Button variant="outline">Cancel</Button>
+            <Button variant="outline" onClick={handleCancel} >Cancel</Button>
             <Button type="submit" onClick={handleSubmit} disabled={!feedbackType || (feedbackType === "academic" && !subType) || questions.length === 0}>
               Save
             </Button>
           </CardFooter>
         </Card>
-{/* Saved Questions Section */}
-<Card className='overflow-y-auto'>
-  <CardHeader>
-    <CardTitle>Saved Questions</CardTitle>
-  </CardHeader>
-  <CardContent>
-    {savedQuestions && savedQuestions.length > 0 ? (
-      savedQuestions.map((questionSet, index) => (
-        <div key={index} className="mb-8">
-          <div className="flex justify-between items-center mb-4">
-            <h3 className="text-lg font-bold">
-              {questionSet.feedbackType}{" "}
-              {questionSet.subType && `- ${questionSet.subType}`}
-            </h3>
-            <Button
-              type="button"
-              variant="destructive"
-              onClick={() => handleDeleteQuestionSet(questionSet._id)}
-            >
-              Delete Set
-            </Button>
-          </div>
-          {questionSet.questions.map((question, questionIndex) => (
-            <div key={questionIndex} className="mb-2">
-              <Textarea
-                value={question}
-                disabled
-                className="w-full"
-              />
-            </div>
-          ))}
-        </div>
-      ))
-    ) : (
-      <p className="text-gray-500 text-center">
-        No questions saved yet.
-      </p>
-    )}
-  </CardContent>
-</Card>
+        {/* Saved Questions Section */}
+        <Card className='overflow-y-auto'>
+          <CardHeader>
+            <CardTitle>Saved Questions</CardTitle>
+          </CardHeader>
+          <CardContent>
+            {savedQuestions && savedQuestions.length > 0 ? (
+              savedQuestions.map((questionSet, index) => (
+                <div key={index} className="mb-8">
+                  <div className="flex justify-between items-center mb-4">
+                    <h3 className="text-lg font-bold">
+                      {questionSet.feedbackType}{" "}
+                      {questionSet.subType && `- ${questionSet.subType}`}
+                    </h3>
+                    <Button
+                      type="button"
+                      variant="destructive"
+                      onClick={() => handleDeleteQuestionSet(questionSet._id)}
+                    >
+                      Delete Set
+                    </Button>
+                  </div>
+                  {questionSet.questions.map((question, questionIndex) => (
+                    <div key={questionIndex} className="mb-2">
+                      <Textarea
+                        value={question}
+                        disabled
+                        className="w-full"
+                      />
+                    </div>
+                  ))}
+                </div>
+              ))
+            ) : (
+              <p className="text-gray-500 text-center">
+                No questions saved yet.
+              </p>
+            )}
+          </CardContent>
+        </Card>
 
 
       </div>

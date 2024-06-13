@@ -29,19 +29,17 @@ export async function PUT(req) {
     try {
         await connectMongoDB();
         const data = await req.json();
-console.log(data);
+        console.log(data);
         const { username, department, password, classes } = data;
-
-        const existingDepartment = await Department.findByIdAndUpdate({_id:username}, {
+        const existingDepartment = await Department.findByIdAndUpdate({ _id: username }, {
             department,
             classes: classes, // Convert comma-separated string to array
             password
         }, { new: true });
-console.log(existingDepartment);
+        console.log(existingDepartment);
         if (!existingDepartment) {
             return NextResponse.json({ error: "Department not found" });
         }
-
         console.log("Department Updated Successfully", existingDepartment);
         return NextResponse.json({ message: "Department Updated Successfully", department: existingDepartment });
     } catch (error) {
@@ -67,7 +65,7 @@ export async function GET() {
 export async function DELETE(req) {
     try {
         await connectMongoDB();
-        const {searchParams} = new URL(req.url);
+        const { searchParams } = new URL(req.url);
         const _id = searchParams.get("_id");
         const deletedDepartment = await Department.findByIdAndDelete(_id);
 
@@ -83,25 +81,3 @@ export async function DELETE(req) {
     }
 }
 
-
-        const updatedDepartment = await Department.findByIdAndUpdate(
-            _id,
-            {
-             
-                department,
-               
-            },
-            { new: true }
-        );
-
-        if (!updatedDepartment) {
-            return NextResponse.json({ error: "Department  not found" }, { status: 404 });
-        }
-
-        console.log("Department updated successfully", updatedDepartment);
-        return NextResponse.json({ message: "Department updated successfully", department: updatedDepartment }, { status: 200 });
-    } catch (error) {
-        console.error("Error updating :", error);
-        return NextResponse.json({ error: "Failed to update faculty" }, { status: 500 });
-    }
-}

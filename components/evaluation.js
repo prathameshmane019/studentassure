@@ -12,7 +12,12 @@ const EvaluationPage = ({role}) => {
   const [responses, setResponses] = useState([]);
   const [feedbackMode, setFeedbackMode] = useState('cumulative');
   const [selectedDepartment, setSelectedDepartment] = useState('');
-  const user = useUser();
+ 
+  let user
+  if(!user){
+    user = useUser();
+  }
+
   useEffect(() => {
     if (user && !feedbackData == [] && !role=="admin") {
       fetchFeedbackData(user.department);
@@ -251,7 +256,7 @@ const EvaluationPage = ({role}) => {
       <div className="container w-full mx-auto px-4 py-8">
         {selectedFeedback && 
       <div className='w-full items-end flex justify-end my-2'>
-              <Button onClick={printDiv}>Print</Button>
+              <Button variant="ghost" onClick={printDiv}>Print</Button>
               </div>}
         <div className="flex gap-10 mb-4">
           {role && 

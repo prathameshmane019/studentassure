@@ -77,7 +77,7 @@ const Sidebar = () => {
                   href={href}
                 >
                   <span className="sidebar__icon">
-                    <Icon className="inline-block mr-2" />
+                    <Icon className="inline-block mx-auto" />
                   </span>
                   <span className="sidebar__name">{name}</span>
                 </Link>
@@ -92,5 +92,4 @@ const Sidebar = () => {
     </div>
   );
 };
-
 export default Sidebar;
