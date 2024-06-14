@@ -23,7 +23,6 @@ export default function LoginComponent() {
     if (session?.user?.role === "superadmin") {
       router.replace("/super_admin");      
     }
-    console.log(session);
   }, [session,router]);
 
   const handleSubmit = async (e) => {
