@@ -25,9 +25,7 @@ const ResponseForm = () => {
       setLoading(true);
       try {
         const response = await axios.get('/api/fetchFeedback');
-
         setFeedbackData(response.data);
-
       } catch (error) {
         setError('Error fetching feedback data');
         toast.error('Error fetching feedback data');
@@ -127,7 +125,9 @@ const ResponseForm = () => {
   const handleSubmitPassword = async (e) => {
     e.preventDefault();
     try {
-      if (password === e.target.password.value) {
+      console.log(password);
+      console.log(selectedFeedback);
+      if (selectedFeedback.pwd === e.target.password.value) {
         setIsPasswordVerified(true);
       } else {
         setError('Incorrect password');

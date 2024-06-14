@@ -15,7 +15,6 @@ export async function POST(req) {
         });
         
         await newResponse.save();
-
         console.log("Response sent successfully");
         console.log(newResponse);
         const feedback = await Feedback.findById({_id:feedback_id})
