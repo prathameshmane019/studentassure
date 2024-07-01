@@ -25,7 +25,7 @@ const FeedbackForm = () => {
   const [academicYear, setAcademicYear] = useState('');
   const [subType, setSubType] = useState('');
   const [loading, setLoading] = useState(false);
-  const [feedbackType, setFeedbackType] = useState('');
+  const [feedbackType, setFeedbackType] = useState('event');
   const [className, setClassName] = useState('');
   const [semester, setSemester] = useState('');
   const [questions, setQuestions] = useState([]);
@@ -254,6 +254,7 @@ const FeedbackForm = () => {
         <form onSubmit={handleSubmit} className="bg-white p-8 rounded-md shadow-md w-[90%]">
           <h2 className="text-2xl font-semibold mb-4 text-center">Create Feedback</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {userDepartment != 'Central' && (
             <div>
               <Select value={feedbackType} onValueChange={(value) => setFeedbackType(value)}>
                 <SelectTrigger className="w-full">
@@ -265,7 +266,7 @@ const FeedbackForm = () => {
                 </SelectContent>
               </Select>
             </div>
-
+          )}
             {feedbackType === 'academic' && (
               <div>
                 <Select value={subType} onValueChange={(value) => setSubType(value)}>
@@ -293,7 +294,6 @@ const FeedbackForm = () => {
                 </SelectContent>
               </Select>
             </div>
-
             <div>
               <Select value={semester} onValueChange={(value) => setSemester(value)}>
                 <SelectTrigger className="w-full">
@@ -305,7 +305,6 @@ const FeedbackForm = () => {
                 </SelectContent>
               </Select>
             </div>
-
             <div>
               <Select value={academicYear} onValueChange={(value) => setAcademicYear(value)}>
                 <SelectTrigger className="w-full">
@@ -318,7 +317,6 @@ const FeedbackForm = () => {
                 </SelectContent>
               </Select>
             </div>
-
             <div>
               {feedbackType === 'event' && (
                 <Input
@@ -354,7 +352,7 @@ const FeedbackForm = () => {
             {feedbackType === 'academic' && (
               <div>
                 {formData.subjects.map((subject, index) => (
-                  <div key={index} className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div key={index} className="grid grid-cols-1 md:grid-cols-3  gap-4">
                     <div>
                       <Input
                         type="text"
@@ -382,7 +380,7 @@ const FeedbackForm = () => {
                         onChange={(e) => handleChange(e, index)}
                       />
                     </div>
-                    <div className="md:col-span-3 flex justify-between">
+                    <div className="md:col-span-3 my-2 gap-2 flex  ">
                       <Button type="button" onClick={() => handleRemoveSubject(index)}>Remove</Button>
                       {index === formData.subjects.length - 1 && (
                         <Button type="button" onClick={handleAddSubject}>Add Another Subject</Button>
