@@ -8,7 +8,7 @@ import { useUser } from "@/app/context/UserContext";
 import { toast } from 'sonner';
 import { Switch } from "@/components/ui/switch";
 import { Spinner } from "@nextui-org/react"; // Import Spinner
-
+import { FiCopy } from 'react-icons/fi';
 import {
   Table,
   TableBody,
@@ -18,6 +18,13 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Label } from './ui/label';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
+
 
 const FeedbackForm = () => {
   const [userDepartment, setUserDepartment] = useState('');
@@ -30,6 +37,7 @@ const FeedbackForm = () => {
   const [className, setClassName] = useState('');
   const [semester, setSemester] = useState('');
   const [questions, setQuestions] = useState([]);
+  const [copied, setCopied] = useState('');
   const [formData, setFormData] = useState({
     feedbackTitle: '',
     selectedQuestion: null,
@@ -253,7 +261,10 @@ const FeedbackForm = () => {
   const copyToClipboard = (feedbackId) => {
     const url = `${window.location.origin}/givefeedback/${feedbackId}`;
     navigator.clipboard.writeText(url).then(() => {
+      setCopied(feedbackId);
       toast.success('Link copied to clipboard!');
+      setTimeout(() => setCopied(''), 2000);
+
     }, (err) => {
       console.error('Could not copy text: ', err);
       toast.error('Failed to copy link');
@@ -463,10 +474,21 @@ const FeedbackForm = () => {
                   <TableRow key={feedback._id}>
                     <TableCell>{feedback.feedbackTitle}</TableCell>
                     <TableCell>{feedback.students}</TableCell>
-                    <TableCell><Button onClick={() => copyToClipboard(feedback._id)} className="mr-2">
-                    Copy Link
-                  </Button>
-                  </TableCell>
+                    <TableCell>
+                    <TooltipProvider>
+                      <Tooltip>
+                    <TooltipTrigger><button
+                        onClick={() => copyToClipboard(feedback._id)}
+                        className="mr-2 transition-transform transform hover:scale-105"
+                      >
+                        <FiCopy className={`w-5 h-5 ${copied === feedback._id ? 'animate-pulse' : ''}`} />
+                      </button></TooltipTrigger>
+                    <TooltipContent>
+                      <p>Copy Link</p>
+                      </TooltipContent>
+                    </Tooltip>
+                    </TooltipProvider>
+                    </TableCell>
                     <TableCell>
                       <Switch
                         checked={feedback.isActive}
