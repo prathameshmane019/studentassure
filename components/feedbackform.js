@@ -17,6 +17,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { Label } from './ui/label';
 
 const FeedbackForm = () => {
   const [userDepartment, setUserDepartment] = useState('');
@@ -132,23 +133,31 @@ const FeedbackForm = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true); // Set loading to true when submitting the form
+    setLoading(true);
     try {
       let feedbackTitle;
       if (feedbackType === 'academic') {
         feedbackTitle = generateFeedbackTitle();
         if (!feedbackTitle) {
-          toast.error('Feedback title is required.');
-          throw new Error('Feedback title is required.');
+          toast.error('All fields are required for academic feedback.');
+          throw new Error('All fields are required for academic feedback.');
         }
-        fetchFeedbacks();
-        setShowFeedbackForm(false);
       } else {
         feedbackTitle = formData.feedbackTitle;
         if (!feedbackTitle) {
           toast.error('Feedback title is required.');
           throw new Error('Feedback title is required.');
         }
+      }
+
+      if (!formData.students || formData.students <= 0) {
+        toast.error('Number of students must be a positive number.');
+        throw new Error('Number of students must be a positive number.');
+      }
+
+      if (!formData.pwd) {
+        toast.error('Password is required.');
+        throw new Error('Password is required.');
       }
 
       const filteredSubjects = feedbackType === 'event' ? formData.subjects.filter(subject => subject.subject && subject.faculty && subject._id) : formData.subjects;
@@ -166,10 +175,9 @@ const FeedbackForm = () => {
     } catch (error) {
       toast.error(error.response?.data?.error || error.message);
     } finally {
-      setLoading(false); // Set loading to false after submitting
+      setLoading(false);
     }
   };
-
   const generateFeedbackTitle = () => {
     if (user && className && semester && subType && academicYear) {
       return `${academicYear} ${user.department} ${className} ${subType.toUpperCase()} Semester ${semester}`;
@@ -242,35 +250,45 @@ const FeedbackForm = () => {
       setLoading(false); // Set loading to false after toggling feedback state
     }
   };
-
+  const copyToClipboard = (feedbackId) => {
+    const url = `${window.location.origin}/givefeedback/${feedbackId}`;
+    navigator.clipboard.writeText(url).then(() => {
+      toast.success('Link copied to clipboard!');
+    }, (err) => {
+      console.error('Could not copy text: ', err);
+      toast.error('Failed to copy link');
+    });
+  };
   return (
-    <div className="flex flex-col items-center overflow-y-auto">
+    <div className="container mx-auto px-4 py-8">
       {!showFeedbackForm && (
-        <div className="flex justify-end m-8 w-[90%]">
+        <div className="flex justify-end mb-8">
           <Button onClick={() => setShowFeedbackForm(true)}>Create Feedback</Button>
         </div>
       )}
       {showFeedbackForm && (
-        <form onSubmit={handleSubmit} className="bg-white p-8 rounded-md shadow-md w-[90%]">
-          <h2 className="text-2xl font-semibold mb-4 text-center">Create Feedback</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {userDepartment != 'Central' && (
-            <div>
-              <Select value={feedbackType} onValueChange={(value) => setFeedbackType(value)}>
-                <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Select a Feedback type" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="academic">Academic</SelectItem>
-                  <SelectItem value="event">External</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          )}
+        <form onSubmit={handleSubmit} className="bg-white p-8 rounded-md shadow-md">
+          <h2 className="text-2xl font-semibold mb-6 text-center">Create Feedback</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {userDepartment !== 'Central' && (
+              <div>
+                <Label htmlFor="feedbackType">Feedback Type *</Label>
+                <Select value={feedbackType} onValueChange={(value) => setFeedbackType(value)} required>
+                  <SelectTrigger id="feedbackType" className="w-full">
+                    <SelectValue placeholder="Select a Feedback type" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="academic">Academic</SelectItem>
+                    <SelectItem value="event">External</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
             {feedbackType === 'academic' && (
               <div>
-                <Select value={subType} onValueChange={(value) => setSubType(value)}>
-                  <SelectTrigger className="w-full">
+                <Label htmlFor="subType">Feedback Subtype *</Label>
+                <Select value={subType} onValueChange={(value) => setSubType(value)} required>
+                  <SelectTrigger id="subType" className="w-full">
                     <SelectValue placeholder="Select a Feedback Subtype" />
                   </SelectTrigger>
                   <SelectContent>
@@ -282,21 +300,22 @@ const FeedbackForm = () => {
             )}
 
             <div>
-              <Select value={className} onValueChange={(value) => setClassName(value)}>
-                <SelectTrigger className="w-full">
+              <Label htmlFor="className">Class Name *</Label>
+              <Select value={className} onValueChange={(value) => setClassName(value)} required>
+                <SelectTrigger id="className" className="w-full">
                   <SelectValue placeholder="Select a Class name" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="All">All</SelectItem>
-                  <SelectItem value="FY">FY</SelectItem>
-                  <SelectItem value="SY">SY</SelectItem>
-                  <SelectItem value="TY">TY</SelectItem>
+                  {user && user?.classes?.map((option) => (
+                    <SelectItem key={option} value={option}>{option}</SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>
             <div>
-              <Select value={semester} onValueChange={(value) => setSemester(value)}>
-                <SelectTrigger className="w-full">
+              <Label htmlFor="semester">Semester *</Label>
+              <Select value={semester} onValueChange={(value) => setSemester(value)} required>
+                <SelectTrigger id="semester" className="w-full">
                   <SelectValue placeholder="Select a Semester" />
                 </SelectTrigger>
                 <SelectContent>
@@ -306,8 +325,9 @@ const FeedbackForm = () => {
               </Select>
             </div>
             <div>
-              <Select value={academicYear} onValueChange={(value) => setAcademicYear(value)}>
-                <SelectTrigger className="w-full">
+              <Label htmlFor="academicYear">Academic Year *</Label>
+              <Select value={academicYear} onValueChange={(value) => setAcademicYear(value)} required>
+                <SelectTrigger id="academicYear" className="w-full">
                   <SelectValue placeholder="Select an Academic Year" />
                 </SelectTrigger>
                 <SelectContent>
@@ -318,81 +338,103 @@ const FeedbackForm = () => {
               </Select>
             </div>
             <div>
-              {feedbackType === 'event' && (
-                <Input
-                  type="text"
-                  name="feedbackTitle"
-                  placeholder="Enter Feedback Title"
-                  value={formData.feedbackTitle}
-                  onChange={handleChange}
-                />
+              {(feedbackType === 'event' || subType === 'practical') && (
+                <div>
+                  <Label htmlFor="feedbackTitle">Feedback Title *</Label>
+                  <Input
+                    id="feedbackTitle"
+                    type="text"
+                    name="feedbackTitle"
+                    placeholder="Enter Feedback Title"
+                    value={formData.feedbackTitle}
+                    onChange={handleChange}
+                    required
+                  />
+                </div>
               )}
             </div>
 
             <div>
+              <Label htmlFor="students">Number of Students *</Label>
               <Input
+                id="students"
                 type="number"
                 name="students"
                 placeholder="Enter total number of students"
                 value={formData.students}
                 onChange={handleChange}
+                min="1"
+                required
               />
             </div>
 
             <div>
+              <Label htmlFor="pwd">Password *</Label>
               <Input
+                id="pwd"
                 type="password"
                 name="pwd"
                 placeholder="Enter password"
                 value={formData.pwd}
                 onChange={handleChange}
+                required
               />
             </div>
-
-            {feedbackType === 'academic' && (
-              <div>
-                {formData.subjects.map((subject, index) => (
-                  <div key={index} className="grid grid-cols-1 md:grid-cols-3  gap-4">
-                    <div>
-                      <Input
-                        type="text"
-                        name={`subject${index}`}
-                        placeholder={`Subject ${index + 1}`}
-                        value={subject.subject}
-                        onChange={(e) => handleChange(e, index)}
-                      />
-                    </div>
-                    <div>
-                      <Input
-                        type="text"
-                        name={`faculty${index}`}
-                        placeholder={`Faculty ${index + 1}`}
-                        value={subject.faculty}
-                        onChange={(e) => handleChange(e, index)}
-                      />
-                    </div>
-                    <div>
-                      <Input
-                        type="text"
-                        name={`_id${index}`}
-                        placeholder={`Subject code ${index + 1}`}
-                        value={subject._id}
-                        onChange={(e) => handleChange(e, index)}
-                      />
-                    </div>
-                    <div className="md:col-span-3 my-2 gap-2 flex  ">
-                      <Button type="button" onClick={() => handleRemoveSubject(index)}>Remove</Button>
-                      {index === formData.subjects.length - 1 && (
-                        <Button type="button" onClick={handleAddSubject}>Add Another Subject</Button>
-                      )}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
           </div>
 
-          <div className="mt-4 flex justify-between">
+          {feedbackType === 'academic' && (
+            <div className="mt-6">
+              <h3 className="text-lg font-semibold mb-4">Subjects</h3>
+              {formData.subjects.map((subject, index) => (
+                <div key={index} className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                  <div>
+                    <Label htmlFor={`subject${index}`}>Subject {index + 1} *</Label>
+                    <Input
+                      id={`subject${index}`}
+                      type="text"
+                      name={`subject${index}`}
+                      placeholder={`Subject ${index + 1}`}
+                      value={subject.subject}
+                      onChange={(e) => handleChange(e, index)}
+                      required
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor={`faculty${index}`}>Faculty {index + 1} *</Label>
+                    <Input
+                      id={`faculty${index}`}
+                      type="text"
+                      name={`faculty${index}`}
+                      placeholder={`Faculty ${index + 1}`}
+                      value={subject.faculty}
+                      onChange={(e) => handleChange(e, index)}
+                      required
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor={`_id${index}`}>Subject Code {index + 1} *</Label>
+                    <Input
+                      id={`_id${index}`}
+                      type="text"
+                      name={`_id${index}`}
+                      placeholder={`Subject code ${index + 1}`}
+                      value={subject._id}
+                      onChange={(e) => handleChange(e, index)}
+                      required
+                    />
+                  </div>
+                  <div className="md:col-span-3 mt-2 flex gap-2">
+                    <Button type="button" onClick={() => handleRemoveSubject(index)}>Remove</Button>
+                    {index === formData.subjects.length - 1 && (
+                      <Button type="button" onClick={handleAddSubject}>Add Another Subject</Button>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+
+          <div className="mt-6 flex justify-between">
             <Button type="button" onClick={handleCancel}>Cancel</Button>
             <Button type="submit">Create Feedback</Button>
           </div>
@@ -400,10 +442,10 @@ const FeedbackForm = () => {
       )}
 
       {!showFeedbackForm && (
-        <div className="w-full mt-8">
+        <div className="mt-8">
           {loading ? (
             <div className="flex justify-center">
-              <Spinner /> {/* Use NextUI Spinner component */}
+              <Spinner />
             </div>
           ) : (
             <Table>
@@ -411,6 +453,7 @@ const FeedbackForm = () => {
                 <TableRow>
                   <TableHead>Feedback Title</TableHead>
                   <TableHead>Number of Students</TableHead>
+                  <TableHead>Link</TableHead>
                   <TableHead>Active</TableHead>
                   <TableHead>Actions</TableHead>
                 </TableRow>
@@ -420,6 +463,10 @@ const FeedbackForm = () => {
                   <TableRow key={feedback._id}>
                     <TableCell>{feedback.feedbackTitle}</TableCell>
                     <TableCell>{feedback.students}</TableCell>
+                    <TableCell><Button onClick={() => copyToClipboard(feedback._id)} className="mr-2">
+                    Copy Link
+                  </Button>
+                  </TableCell>
                     <TableCell>
                       <Switch
                         checked={feedback.isActive}
@@ -439,6 +486,4 @@ const FeedbackForm = () => {
     </div>
   );
 };
-
 export default FeedbackForm;
-
