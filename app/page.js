@@ -6,7 +6,7 @@ export default function Home() {
   return (
     <>
       <Head>
-        <title>Savitribai Phule Shikshan Prasarak Mandal's SKN Sinhgad College of Engineering, Pandharpur - Student Assure</title>
+        <title>Savitribai Phule Shikshan Prasarak Mandal &#39; s SKN Sinhgad College of Engineering, Pandharpur - Student Assure</title>
         <meta name="description" content="Student Assure - Feedback for College Students" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
@@ -18,7 +18,7 @@ export default function Home() {
               <Image src="/logoschool.jpeg" height={100} width={100} alt="Student Assure Logo" className="h-12" />
               <div>
                 <h1 className="sm:text-lg text-xs font-bold text-gray-800">
-                  Savitribai Phule Shikshan Prasarak Mandal's<br />
+                  Savitribai Phule Shikshan Prasarak Mandal &#39;s<br />
                   SKN Sinhgad College of Engineering, Pandharpur
                 </h1>
                 <p className="hidden sm:block text-sm text-gray-600">At Post : Korti, Tal : Pandharpur, Dist : Solapur, Maharashtra 413304</p>
