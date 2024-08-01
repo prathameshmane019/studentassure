@@ -89,7 +89,7 @@ const DepartmentManager = () => {
   };
 
   return (
-    <div className="mx-10 h-screen">
+    <div className="mx-10 mt-10 h-screen">
       {showForm && (
         <div className="modal-overlay">
           <div className="modal">

@@ -6,24 +6,27 @@ import { Button } from '@/components/ui/button';
 import { useUser } from '@/app/context/UserContext';
 import dynamic from 'next/dynamic';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+
 const Chart = dynamic(() => import('react-apexcharts'), { ssr: false });
 
 import Image from 'next/image';
 const EvaluationPage = ({ role }) => {
+  const [cumulativeStudentCategories, setCumulativeStudentCategories] = useState([]);
   const [feedbackData, setFeedbackData] = useState([]);
   const [selectedSubject, setSelectedSubject] = useState(null);
   const [selectedFeedback, setSelectedFeedback] = useState(null);
   const [responses, setResponses] = useState([]);
   const [feedbackMode, setFeedbackMode] = useState('cumulative');
   const [selectedDepartment, setSelectedDepartment] = useState('');
+
   const user = useUser();
+
   useEffect(() => {
     if (user && !feedbackData == [] && role != 'Central') {
       // setSelectedDepartment(user.department)
       fetchFeedbackData(user.department);
     }
   }, [user]);
-
 
   const fetchFeedbackData = async (department) => {
     try {
@@ -47,6 +50,7 @@ const EvaluationPage = ({ role }) => {
     try {
       const response = await axios.get(`/api/response?feedbackId=${feedbackId}`);
       setResponses(response.data);
+      console.log(response);
     } catch (error) {
       console.error('Error fetching responses:', error);
       setResponses([]);
@@ -55,6 +59,14 @@ const EvaluationPage = ({ role }) => {
   const printDiv = () => {
     window.print();
   };
+
+
+  useEffect(() => {
+    if (selectedFeedback && responses.length > 0) {
+      const categories = calculateCumulativeStudentCategories();
+      setCumulativeStudentCategories(categories);
+    }
+  }, [selectedFeedback, responses]);
 
   const formatDate = (dateString) => {
     const date = new Date(dateString);
@@ -213,36 +225,30 @@ const EvaluationPage = ({ role }) => {
     const totalResponses = responses.length;
     const subjectCategories = {};
 
-    selectedFeedback?.subjects?.forEach(subject => {
+    selectedFeedback.subjects.forEach(subject => {
       let noProblemCount = 0;
-      let problemCount = 0;
+      let totalRatings = 0;
 
       responses.forEach(feedbackEntry => {
-        const ratingsForSubject = feedbackEntry?.ratings?.find(rating => rating?.subject_id === subject._id);
+        const ratingsForSubject = feedbackEntry.ratings.find(rating => rating.subject_id === subject._id);
         if (ratingsForSubject) {
-          ratingsForSubject?.ratings?.forEach(rating => {
+          ratingsForSubject.ratings.forEach(rating => {
             if (!isNaN(rating) && rating !== null) {
-              if (rating > 3) {
+              if (rating >= 4) {  // Consider 4 and 5 as "No Problem"
                 noProblemCount++;
-              } else {
-                problemCount++;
               }
+              totalRatings++;
             }
           });
         }
       });
 
-      const totalRatings = selectedFeedback.questions.length * totalResponses;
-      const noProblemPercentage = (noProblemCount / totalRatings) * 100;
-      const problemPercentage = (problemCount / totalRatings) * 100;
-
-      subjectCategories[subject._id] = { noProblemPercentage, problemPercentage };
+      const noProblemPercentage = totalRatings > 0 ? (noProblemCount / totalRatings) * 100 : 0;
+      subjectCategories[subject._id] = { noProblemPercentage };
     });
 
     return subjectCategories;
   };
-
-  const cumulativeStudentCategories = calculateCumulativeStudentCategories();
 
   const { noProblemPercentage, problemPercentage } = calculateStudentCategories(); // For individual feedback
 
@@ -301,7 +307,10 @@ const EvaluationPage = ({ role }) => {
             <div>
               <Select
                 defaultValue={feedbackMode}
-                onValueChange={(value) => setFeedbackMode(value)}
+                onValueChange={(value) => {
+                  setFeedbackMode(value);
+                  setSelectedSubject(null); // Clear selected subject when changing view mode
+                }}
               >
                 <SelectTrigger className="w-[200px]">
                   <SelectValue placeholder="Select Feedback Mode" />
@@ -505,7 +514,7 @@ const EvaluationPage = ({ role }) => {
                           show: true,
                           tools: {
                             download: true,
-                          
+
                           },
                         },
                       },
@@ -561,11 +570,11 @@ const EvaluationPage = ({ role }) => {
                           show: true,
                           tools: {
                             download: true,
-                          
+
                           },
                         },
                       },
-                     
+
                       plotOptions: {
                         pie: {
                           donut: {
@@ -584,7 +593,7 @@ const EvaluationPage = ({ role }) => {
                     type="donut"
                     height={400}
                     width={400}
-                    
+
                   />
                 </div>
               )}
@@ -594,12 +603,8 @@ const EvaluationPage = ({ role }) => {
                   <h3 className=" text-center text-lg font-semibold mt-4">Cumulative Student Categories</h3>
                   <Chart
                     options={{
-                      labels: Object.keys(cumulativeStudentCategories),
-                      legend: {
-                        position: 'bottom',
-                        
-                      },
                       chart: {
+                        type: 'bar',
                         toolbar: {
                           show: true,
                           tools: {
@@ -608,27 +613,55 @@ const EvaluationPage = ({ role }) => {
                         },
                       },
                       plotOptions: {
-                        pie: {
-                          donut: {
-                            size: '45%',
+                        bar: {
+                          horizontal: false,
+                          dataLabels: {
+                            position: 'top', // Display data labels on top of bars
                           },
                         },
                       },
                       dataLabels: {
                         enabled: true,
                         formatter: function (val, opts) {
-                          return opts.w.globals.labels[opts.seriesIndex] + ': ' + val.toFixed(2) + '%';
+                          // Use the actual percentage value for the label
+                          return val.toFixed(2) + '%';
                         },
                       },
+                      xaxis: {
+                        categories: selectedFeedback.subjects.map(subject => subject.faculty),
+                      },
+                      yaxis: {
+                        min: 0,
+                        max: 100,
+                        labels: {
+                          formatter: function (value) {
+                            return value.toFixed(2) + '%';
+                          }
+                        }
+                      },
+                      tooltip: {
+                        y: {
+                          formatter: function (value) {
+                            return value.toFixed(2) + '%';
+                          }
+                        }
+                      },
+                      legend: {
+                        position: 'bottom',
+                      },
                     }}
-                    series={Object.values(cumulativeStudentCategories).map(category => category.noProblemPercentage)}
-                    type="donut"
+                    series={[{
+                      name: 'No Problem Percentage',
+                      data: selectedFeedback.subjects.map(subject =>
+                        cumulativeStudentCategories[subject._id]?.noProblemPercentage || 0
+                      )
+                    }]}
+                    type='bar'
                     height={400}
-                    width={400}
+                    width={600}
                   />
                 </div>
               )}
-
             </TabsContent>
           </Tabs>
         </> :
@@ -639,11 +672,8 @@ const EvaluationPage = ({ role }) => {
               height={600}
               alt="Picture of the author"
             /></div>}
-
       </div>
-
     </div>
   );
 };
-
 export default EvaluationPage;

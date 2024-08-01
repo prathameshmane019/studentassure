@@ -25,7 +25,6 @@ export async function GET(req) {
     
         await connectMongoDB();
         let feedbacks
-        
          feedbacks = await Feedback.find({department:department})
         console.log("Feedback fetched Successfully");
         console.log(feedbacks);
