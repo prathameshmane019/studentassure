@@ -398,7 +398,7 @@
 
 button {
   font-size: 18px;
-  color: #e1e1e1;
+  color: #4c7a8c;
   font-family: inherit;
   font-weight: 800;
   cursor: pointer;
@@ -413,7 +413,7 @@ button {
 
 button:focus,
 button:hover {
-  color: #fff;
+  color: #5583a0;
 }
 
 button:focus:after,
