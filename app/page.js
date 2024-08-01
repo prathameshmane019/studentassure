@@ -27,7 +27,7 @@ export default function Home() {
             <nav className="flex items-center space-x-4">
               <Link href="/login" legacyBehavior>
                 <a>
-                  <button>
+                  <button className="b1">
                     Login
                   </button>
                 </a>
