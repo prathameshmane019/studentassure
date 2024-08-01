@@ -1,16 +1,3 @@
-// import ResponseForm from '@/components/responseform'
-// import React from 'react'
-
-// const page = () => {
-//   return (
-//     <div>
-//       <ResponseForm/>
-//     </div>
-//   )
-// }
-
-// export default page
-
 "use client"
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
