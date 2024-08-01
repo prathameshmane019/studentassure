@@ -309,7 +309,7 @@
 
 /* styles/globals.css */
 
-b1 {
+.b1 {
   font-size: 18px;
   color: #4c7a8c;
   font-family: inherit;
@@ -324,18 +324,18 @@ b1 {
   transition-property: color;
 }
 
-b1:focus,
-b1:hover {
+.b1:focus,
+.b1:hover {
   color: #5583a0;
 }
 
-b1:focus:after,
-b1:hover:after {
+.b1:focus:after,
+.b1:hover:after {
   width: 100%;
   left: 0%;
 }
 
-b1:after {
+.b1:after {
   content: "";
   pointer-events: none;
   bottom: -2px;
