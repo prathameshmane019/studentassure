@@ -17,11 +17,11 @@ export default function Home() {
             <div className="flex items-center gap-5">
               <Image src="/logoschool.jpeg" height={100} width={100} alt="Student Assure Logo" className="h-12" />
               <div>
-                <h1 className="sm:text-lg text-xs font-bold text-gray-800 text-center">
+                <h1 className="sm:text-lg text-xs font-bold text-gray-800">
                   Savitribai Phule Shikshan Prasarak Mandal &#39;s<br />
                   SKN Sinhgad College of Engineering, Pandharpur
                 </h1>
-                <p className="hidden sm:block text-sm text-gray-600 text-center">At Post : Korti, Tal : Pandharpur, Dist : Solapur, Maharashtra 413304</p>
+                <p className="hidden sm:block text-sm text-gray-600">At Post : Korti, Tal : Pandharpur, Dist : Solapur, Maharashtra 413304</p>
               </div>
             </div>
             <nav className="flex items-center space-x-4">
@@ -36,15 +36,18 @@ export default function Home() {
           </div>
         </header>
 
-        <main className="container mx-auto p-6 text-center">
-          <h2 className="text-4xl font-bold text-blue-500 mb-12">Welcome to Student Assure</h2>
+        <main className="container mx-auto p-6">
+          <h2 className="text-4xl font-bold text-blue-500 mb-12 text-center">Welcome to Student Assure</h2>
           
-          <section className="my-12">
-            <div className="text-center">
-              <p className="text-gray-700 text-lg leading-relaxed mb-8 max-w-3xl mx-auto">
+          <section className="flex flex-col md:flex-row justify-between items-center my-12 gap-8">
+            <div className="w-full md:w-1/2">
+              <Image src="/home.jpg" width={600} height={600} alt="Student Assure Logo" className="rounded-lg shadow-md" />
+            </div>
+            <div className="w-full md:w-1/2 text-left">
+              <p className="text-gray-700 text-lg leading-relaxed mb-8 max-w-xl">
                 At Student Assure, we believe in the power of student feedback to drive improvement in education. Our platform connects college students with educators, fostering a collaborative environment that enhances the learning experience for everyone involved.
               </p>
-              <p className="text-gray-700 text-lg leading-relaxed mb-8 max-w-3xl mx-auto">
+              <p className="text-gray-700 text-lg leading-relaxed mb-8 max-w-xl">
                 By providing a space for open communication and constructive feedback, we aim to create a more responsive and effective educational system that truly meets the needs of students and faculty alike.
               </p>
               <Link href="/givefeedback" legacyBehavior>
@@ -79,6 +82,7 @@ export default function Home() {
         <footer className="bg-white shadow-md py-6">
           <div className="container mx-auto text-center">
             <p className="text-gray-600 mb-4">&copy; {new Date().getFullYear()} UnityTech Solutions. All rights reserved.</p>
+           
           </div>
         </footer>
       </div>
