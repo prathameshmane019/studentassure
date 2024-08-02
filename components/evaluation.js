@@ -30,7 +30,7 @@ const EvaluationPage = ({ role }) => {
 
   const fetchFeedbackData = async (department) => {
     try {
-      const response = await axios.get(`/api/feedback?department=${department}`);
+      const response = await axios.get(`/api/EvalFeedback?department=${department}`);
       const filteredFeedbackData = response.data.filter(
         feedback => !feedback.isActive
       );
