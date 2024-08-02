@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { connectMongoDB } from "@/lib/connectDb";
 import Feedback from "@/models/feedback";
-
+import Response from "@/models/response";
 export async function POST(req) {
     try {
         await connectMongoDB();
@@ -25,7 +25,7 @@ export async function GET(req) {
     
         await connectMongoDB();
         let feedbacks
-         feedbacks = await Feedback.find({department:department})
+         feedbacks = await Feedback.find({department:department}).select("feedbackTitle responses isActive students")
         console.log("Feedback fetched Successfully");
         console.log(feedbacks);
         return NextResponse.json(feedbacks,{status:200});
@@ -34,24 +34,32 @@ export async function GET(req) {
         return NextResponse.json({ error: "Failed to create feedback" },{status:500});
     }
 }
-
 export async function DELETE(req) {
     try {
         await connectMongoDB();
-        const {searchParams} = new URL(req.url);
-        const _id = searchParams.get("_id");
-        const deleted = await Feedback.findByIdAndDelete(_id);
+        const { searchParams } = new URL(req.url);
+        const id = searchParams.get("id");
 
-        if (!deleted) {
-            return NextResponse.json({ error: "Feedback not found" },{status:404});
+        // Find the feedback first
+        const feedback = await Feedback.findById(id);
+        if (!feedback) {
+            return NextResponse.json({ error: "Feedback not found" }, { status: 404 });
         }
-        console.log("Feedback Deleted Successfully", deleted);
-        return NextResponse.json({ message: "Feedback Deleted Successfully" },{status:200});
+
+        // Delete all associated responses
+        await Response.deleteMany({ feedback_id: id });
+
+        // Now delete the feedback
+        const deleted = await Feedback.findByIdAndDelete(id);
+
+        console.log("Feedback and associated responses deleted successfully", deleted);
+        return NextResponse.json({ message: "Feedback and associated responses deleted successfully" }, { status: 200 });
     } catch (error) {
-        console.error("Error deleting Feedback:", error);
-        return NextResponse.json({ error: "Failed to Delete" },{status:500});
+        console.error("Error deleting Feedback and responses:", error);
+        return NextResponse.json({ error: "Failed to Delete" }, { status: 500 });
     }
 }
+
 export async function PUT(req) {
     try {
         await connectMongoDB();

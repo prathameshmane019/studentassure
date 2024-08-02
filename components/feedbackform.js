@@ -24,6 +24,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip"
+import { Loader2 } from 'lucide-react';
 
 
 const FeedbackForm = () => {
@@ -36,6 +37,7 @@ const FeedbackForm = () => {
   const [feedbackType, setFeedbackType] = useState('event');
   const [className, setClassName] = useState('');
   const [semester, setSemester] = useState('');
+  const [isTitleEdited, setIsTitleEdited] = useState(false);
   const [questions, setQuestions] = useState([]);
   const [copied, setCopied] = useState('');
   const [formData, setFormData] = useState({
@@ -88,6 +90,9 @@ const FeedbackForm = () => {
 
   const handleChange = (e, index) => {
     const { name, value } = e.target;
+    if (name === 'feedbackTitle') {
+      setFormData({ ...formData, feedbackTitle: value });
+    }
     if (name.startsWith('subject')) {
       const newSubjects = [...formData.subjects];
       newSubjects[index].subject = value;
@@ -144,7 +149,7 @@ const FeedbackForm = () => {
     setLoading(true);
     try {
       let feedbackTitle;
-      if (feedbackType === 'academic') {
+      if (feedbackType === 'academic' && subType === "theory") {
         feedbackTitle = generateFeedbackTitle();
         if (!feedbackTitle) {
           toast.error('All fields are required for academic feedback.');
@@ -158,6 +163,10 @@ const FeedbackForm = () => {
         }
       }
 
+      if (questions.length == 0) {
+        toast.error('Questions are missing contact to superadmin to add questions and try again.');
+        throw new Error('Questions are missing contact to superadmin to add questions and try again.');
+      }
       if (!formData.students || formData.students <= 0) {
         toast.error('Number of students must be a positive number.');
         throw new Error('Number of students must be a positive number.');
@@ -240,22 +249,30 @@ const FeedbackForm = () => {
   };
 
   const handleToggleIsActive = async (id, isActive) => {
-    setLoading(true); // Set loading to true when toggling feedback state
-    try {
-      await axios.put(`/api/feedback?_id=${id}`, { isActive: !isActive });
-      const updatedFeedbacks = feedbacks?.map(feedback => {
-        if (feedback._id === id) {
-          return { ...feedback, isActive: !isActive };
-        }
-        return feedback;
-      });
-      setFeedbacks(updatedFeedbacks);
-      toast.success('Feedback state updated successfully.');
-    } catch (error) {
-      console.error('Error updating feedback state:', error);
-      toast.error('Failed to update feedback state.');
-    } finally {
-      setLoading(false); // Set loading to false after toggling feedback state
+    const feedbackToUpdate = feedbacks?.find(feedback => feedback._id === id);
+    console.log(feedbackToUpdate);
+    if (feedbackToUpdate.students === feedbackToUpdate.responses.length) {
+      console.log("error");
+      toast.error('Feedback is already full.');
+    }
+    else {
+      setLoading(true); // Set loading to true when toggling feedback state
+      try {
+        await axios.put(`/api/feedback?_id=${id}`, { isActive: !isActive });
+        const updatedFeedbacks = feedbacks?.map(feedback => {
+          if (feedback._id === id) {
+            return { ...feedback, isActive: !isActive };
+          }
+          return feedback;
+        });
+        setFeedbacks(updatedFeedbacks);
+        toast.success('Feedback state updated successfully.');
+      } catch (error) {
+        console.error('Error updating feedback state:', error);
+        toast.error('Failed to update feedback state.');
+      } finally {
+        setLoading(false); // Set loading to false after toggling feedback state
+      }
     }
   };
   const copyToClipboard = (feedbackId) => {
@@ -270,6 +287,14 @@ const FeedbackForm = () => {
       toast.error('Failed to copy link');
     });
   };
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center min-h-screen">
+        <Loader2 className="h-8 w-8 animate-spin" />
+      </div>
+    );
+  }
   return (
     <div className="container mx-auto px-4 py-8">
       {!showFeedbackForm && (
@@ -356,9 +381,12 @@ const FeedbackForm = () => {
                     id="feedbackTitle"
                     type="text"
                     name="feedbackTitle"
-                    placeholder="Enter Feedback Title"
-                    value={formData.feedbackTitle}
-                    onChange={handleChange}
+                    placeholder={generateFeedbackTitle()}
+                    value={isTitleEdited ? formData.feedbackTitle : generateFeedbackTitle() + formData.feedbackTitle}
+                    onChange={(e) => {
+                      setIsTitleEdited(true);
+                      handleChange(e);
+                    }}
                     required
                   />
                 </div>
@@ -464,6 +492,7 @@ const FeedbackForm = () => {
                 <TableRow>
                   <TableHead>Feedback Title</TableHead>
                   <TableHead>Number of Students</TableHead>
+                  <TableHead>Number of Responses</TableHead>
                   <TableHead>Link</TableHead>
                   <TableHead>Active</TableHead>
                   <TableHead>Actions</TableHead>
@@ -474,20 +503,21 @@ const FeedbackForm = () => {
                   <TableRow key={feedback._id}>
                     <TableCell>{feedback.feedbackTitle}</TableCell>
                     <TableCell>{feedback.students}</TableCell>
+                    <TableCell>{feedback.responses.length}</TableCell>
                     <TableCell>
-                    <TooltipProvider>
-                      <Tooltip>
-                    <TooltipTrigger><button
-                        onClick={() => copyToClipboard(feedback._id)}
-                        className="mr-2 transition-transform transform hover:scale-105"
-                      >
-                        <FiCopy className={`w-5 h-5 ${copied === feedback._id ? 'animate-pulse' : ''}`} />
-                      </button></TooltipTrigger>
-                    <TooltipContent>
-                      <p>Copy Link</p>
-                      </TooltipContent>
-                    </Tooltip>
-                    </TooltipProvider>
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger><button
+                            onClick={() => copyToClipboard(feedback._id)}
+                            className="mr-2 transition-transform transform hover:scale-105"
+                          >
+                            <FiCopy className={`w-5 h-5 ${copied === feedback._id ? 'animate-pulse' : ''}`} />
+                          </button></TooltipTrigger>
+                          <TooltipContent>
+                            <p>Copy Link</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
                     </TableCell>
                     <TableCell>
                       <Switch
