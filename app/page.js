@@ -51,6 +51,7 @@ export default function Home() {
                 By providing a space for open communication and constructive feedback, we aim to create a more responsive and effective educational system that truly meets the needs of students and faculty alike.
               </p>
               <Link href="/givefeedback" legacyBehavior>
+              <div class="custom-button-container">
                 <a className="inline-block">
                   <button className="custom-button">
                     <span>Provide Feedback</span>
@@ -74,6 +75,7 @@ export default function Home() {
                     </div>
                   </button>
                 </a>
+                </div>
               </Link>
             </div>
           </section>
@@ -82,7 +84,6 @@ export default function Home() {
         <footer className="bg-white shadow-md py-6">
           <div className="container mx-auto text-center">
             <p className="text-gray-600 mb-4">&copy; {new Date().getFullYear()} UnityTech Solutions. All rights reserved.</p>
-           
           </div>
         </footer>
       </div>

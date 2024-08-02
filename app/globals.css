@@ -184,6 +184,12 @@
   }
 
 /* Updated button styles with animated stars */
+.custom-button-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
 .custom-button {
   position: relative;
   padding: 12px 35px;
@@ -192,6 +198,7 @@
   font-weight: 1000;
   color: #ffffff;
   border: 3px solid #4c83fa;
+  align-items: center;
   border-radius: 8px;
   box-shadow: 0 0 0 #ffffff;
   transition: all 0.3s ease-in-out;
