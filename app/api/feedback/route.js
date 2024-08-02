@@ -38,7 +38,7 @@ export async function DELETE(req) {
     try {
         await connectMongoDB();
         const { searchParams } = new URL(req.url);
-        const id = searchParams.get("id");
+        const id = searchParams.get("_id");
 
         // Find the feedback first
         const feedback = await Feedback.findById(id);

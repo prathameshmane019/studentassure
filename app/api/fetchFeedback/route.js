@@ -10,7 +10,6 @@ export async function GET(req) {
         await connectMongoDB();
 
         let feedbacks;
-
         if (_id) {
             feedbacks = await Feedback.findOne({ _id, isActive: true });
         } else if (department) {
