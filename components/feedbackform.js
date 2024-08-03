@@ -9,6 +9,7 @@ import { toast } from 'sonner';
 import { Switch } from "@/components/ui/switch";
 import { Spinner } from "@nextui-org/react"; // Import Spinner
 import { FiCopy } from 'react-icons/fi';
+
 import {
   Table,
   TableBody,
@@ -41,6 +42,10 @@ const FeedbackForm = () => {
   const [questions, setQuestions] = useState([]);
   const [selectedQuestionSet, setSelectedQuestionSet] = useState(null);
   const [copied, setCopied] = useState('');
+  const [generatedTitle, setGeneratedTitle] = useState('');
+  const [showDialog, setShowDialog] = useState(false);
+  const [selectedFeedbackId, setSelectedFeedbackId] = useState(null);
+
   const [formData, setFormData] = useState({
     feedbackTitle: '',
     selectedQuestion: null,
@@ -62,10 +67,9 @@ const FeedbackForm = () => {
   }, [user]);
 
   useEffect(() => {
-    if (feedbackType && subType) {
+    if (feedbackType == "academic" && (subType == "theory" || subType == "practical")) {
       fetchQuestions();
     }
-
     if (feedbackType && feedbackType === 'event') {
       fetchEventQuestions();
     }
@@ -84,8 +88,12 @@ const FeedbackForm = () => {
 
   const fetchQuestions = async () => {
     try {
-      const response = await axios.get(`/api/questions?type=${feedbackType}&subtype=${subType}`);
-      setQuestions(response.data.questions);
+      setQuestions([])
+      if (feedbackType == "academic" && subType) {
+        const response = await axios.get(`/api/questions?type=${feedbackType}&subtype=${subType}`);
+        setQuestions(response.data[0].questions);
+        console.log("Questions :", questions.questions);
+      }
     } catch (error) {
       console.error('Error fetching questions:', error);
     }
@@ -134,17 +142,19 @@ const FeedbackForm = () => {
     setClassName('');
     setSemester('');
     setQuestions([]);
-    setShowFeedbackForm(false);
-    setFormData({
-      feedbackTitle: '',
-      selectedQuestion: [],
-      subjects: [{ subject: '', faculty: '', _id: '' }],
-      students: '',
-      pwd: '',
-      department: "",
-      isActive: false,
-      feedbackType: ""
-    });
+    setShowFeedbackForm(false),
+    setSelectedQuestionSet(null),
+    setGeneratedTitle(''),
+      setFormData({
+        feedbackTitle: '',
+        selectedQuestion: [],
+        subjects: [{ subject: '', faculty: '', _id: '' }],
+        students: '',
+        pwd: '',
+        department: "",
+        isActive: false,
+        feedbackType: ""
+      });
   };
 
   const handleSubmit = async (e) => {
@@ -152,6 +162,12 @@ const FeedbackForm = () => {
     setLoading(true);
     try {
       let feedbackTitle;
+      if (feedbackType === 'academic' && subType === "practical") {
+        feedbackTitle = generatedTitle
+        console.log(generatedTitle);
+        
+      }
+      else
       if (feedbackType === 'academic' && subType === "theory") {
         feedbackTitle = generateFeedbackTitle();
         if (!feedbackTitle) {
@@ -159,14 +175,14 @@ const FeedbackForm = () => {
           throw new Error('All fields are required for academic feedback.');
         }
       } else {
-        feedbackTitle = selectedQuestionSet?.feedbackId ||formData.feedbackTitle;
+        feedbackTitle = selectedQuestionSet?.feedbackId || formData.feedbackTitle;
         if (!feedbackTitle) {
           toast.error('Feedback title is required.');
           throw new Error('Feedback title is required.');
         }
       }
 
-      if (questions.length == 0) {
+      if (questions?.questions?.length == 0) {
         toast.error('Questions are missing contact to superadmin to add questions and try again.');
         throw new Error('Questions are missing contact to superadmin to add questions and try again.');
       }
@@ -189,13 +205,17 @@ const FeedbackForm = () => {
         subjects: filteredSubjects
       };
       console.log(updatedFormData);
+
       await axios.post('/api/feedback', updatedFormData);
       handleCancel();
       toast.success("Feedback created successfully");
     } catch (error) {
+      console.log(error);
+
       toast.error(error.response?.data?.error || error.message);
     } finally {
       setLoading(false);
+      handleCancel()
     }
   };
   const generateFeedbackTitle = () => {
@@ -204,16 +224,22 @@ const FeedbackForm = () => {
     }
     return '';
   };
+  
+  useEffect(() => {
+  if (user && className && semester && subType && academicYear) {
+    setGeneratedTitle(`${academicYear} ${user.department} ${className} ${subType.toUpperCase()} Semester ${semester}`);
+  }
+}, [user, className, semester, subType, academicYear]);
 
   useEffect(() => {
     if (selectedQuestionSet && questions) {
       console.log(questions);
       console.log(selectedQuestionSet);
-        setFormData({ ...formData, questions: selectedQuestionSet.questions });
-    }else{
+      setFormData({ ...formData, questions: selectedQuestionSet.questions });
+    } else {
       setFormData({ ...formData, questions: questions });
     }
-  }, [questions,selectedQuestionSet]);
+  }, [questions, selectedQuestionSet]);
 
   const currentYear = new Date().getFullYear();
   const academicYearOptions = [
@@ -241,6 +267,7 @@ const FeedbackForm = () => {
     }
   };
 
+
   const handleDeleteFeedback = async (id) => {
     setLoading(true); // Set loading to true when deleting feedback
     try {
@@ -258,7 +285,7 @@ const FeedbackForm = () => {
   const handleToggleIsActive = async (id, isActive) => {
     const feedbackToUpdate = feedbacks?.find(feedback => feedback._id === id);
     console.log(feedbackToUpdate);
-    if (feedbackToUpdate.students === feedbackToUpdate.responses.length) {
+    if (feedbackToUpdate.students === feedbackToUpdate?.responses?.length) {
       console.log("error");
       toast.error('Feedback is already full.');
     }
@@ -358,8 +385,8 @@ const FeedbackForm = () => {
                     type="text"
                     name="feedbackTitle"
                     value={selectedQuestionSet.feedbackId}
-                    onChange={handleChange}  />
-                    
+                    onChange={handleChange} />
+
 
                 </div>
                 <div>
@@ -403,33 +430,45 @@ const FeedbackForm = () => {
               </div>
             )}
             {feedbackType === 'academic' && (
-            <div>
-              <Label htmlFor="semester">Semester *</Label>
-              <Select value={semester} onValueChange={(value) => setSemester(value)} required>
-                <SelectTrigger id="semester" className="w-full">
-                  <SelectValue placeholder="Select a Semester" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="1">Semester 1</SelectItem>
-                  <SelectItem value="2">Semester 2</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+              <div>
+                <Label htmlFor="semester">Semester *</Label>
+                <Select value={semester} onValueChange={(value) => setSemester(value)} required>
+                  <SelectTrigger id="semester" className="w-full">
+                    <SelectValue placeholder="Select a Semester" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="1">Semester 1</SelectItem>
+                    <SelectItem value="2">Semester 2</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
             )}
-             {feedbackType === 'academic' && (
-            <div>
-              <Label htmlFor="academicYear">Academic Year *</Label>
-              <Select value={academicYear} onValueChange={(value) => setAcademicYear(value)} required>
-                <SelectTrigger id="academicYear" className="w-full">
-                  <SelectValue placeholder="Select an Academic Year" />
-                </SelectTrigger>
-                <SelectContent>
-                  {academicYearOptions?.map((option, index) => (
-                    <SelectItem key={index} value={option}>{option}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
+            {feedbackType === 'academic' && subType === "practical" && (
+              <div >
+                <Label>Feedback Title</Label>
+                <Input
+                  id="feedbackTitle"
+                  type="text"
+                  name="feedbackTitle"
+                  value={generatedTitle}
+                  onChange={(e) => setGeneratedTitle(e.target.value)}
+                />
+              </div>
+            )}
+            {feedbackType === 'academic' && (
+              <div>
+                <Label htmlFor="academicYear">Academic Year *</Label>
+                <Select value={academicYear} onValueChange={(value) => setAcademicYear(value)} required>
+                  <SelectTrigger id="academicYear" className="w-full">
+                    <SelectValue placeholder="Select an Academic Year" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {academicYearOptions?.map((option, index) => (
+                      <SelectItem key={index} value={option}>{option}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
             )}
             <div>
               <Label htmlFor="students">Number of Students *</Label>
@@ -502,7 +541,7 @@ const FeedbackForm = () => {
                   </div>
                   <div className="md:col-span-3 mt-2 flex gap-2">
                     <Button type="button" onClick={() => handleRemoveSubject(index)}>Remove</Button>
-                    {index === formData.subjects.length - 1 && (
+                    {index === formData?.subjects?.length - 1 && (
                       <Button type="button" onClick={handleAddSubject}>Add Another Subject</Button>
                     )}
                   </div>
@@ -516,64 +555,69 @@ const FeedbackForm = () => {
             <Button type="submit">Create Feedback</Button>
           </div>
         </form>
-      )}
+      )
+      }
 
-      {!showFeedbackForm && (
-        <div className="mt-8">
-          {loading ? (
-            <div className="flex justify-center">
-              <Spinner />
-            </div>
-          ) : (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Feedback Title</TableHead>
-                  <TableHead>Number of Students</TableHead>
-                  <TableHead>Number of Responses</TableHead>
-                  <TableHead>Link</TableHead>
-                  <TableHead>Active</TableHead>
-                  <TableHead>Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {Array.isArray(feedbacks) && feedbacks?.map((feedback) => (
-                  <TableRow key={feedback._id}>
-                    <TableCell>{feedback.feedbackTitle}</TableCell>
-                    <TableCell>{feedback.students}</TableCell>
-                    <TableCell>{feedback.responses.length}</TableCell>
-                    <TableCell>
-                      <TooltipProvider>
-                        <Tooltip>
-                          <TooltipTrigger><button
-                            onClick={() => copyToClipboard(feedback._id)}
-                            className="mr-2 transition-transform transform hover:scale-105"
-                          >
-                            <FiCopy className={`w-5 h-5 ${copied === feedback._id ? 'animate-pulse' : ''}`} />
-                          </button></TooltipTrigger>
-                          <TooltipContent>
-                            <p>Copy Link</p>
-                          </TooltipContent>
-                        </Tooltip>
-                      </TooltipProvider>
-                    </TableCell>
-                    <TableCell>
-                      <Switch
-                        checked={feedback.isActive}
-                        onCheckedChange={() => handleToggleIsActive(feedback._id, feedback.isActive)}
-                      />
-                    </TableCell>
-                    <TableCell>
-                      <Button onClick={() => handleDeleteFeedback(feedback._id)}>Delete</Button>
-                    </TableCell>
+      {
+        !showFeedbackForm && (
+          <div className="mt-8">
+            {loading ? (
+              <div className="flex justify-center">
+                <Spinner />
+              </div>
+            ) : (
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Feedback Title</TableHead>
+                    <TableHead>Number of Students</TableHead>
+                    <TableHead>Number of Responses</TableHead>
+                    <TableHead>Link</TableHead>
+                    <TableHead>Active</TableHead>
+                    <TableHead>Actions</TableHead>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          )}
-        </div>
-      )}
-    </div>
+                </TableHeader>
+                <TableBody>
+                  {Array.isArray(feedbacks) && feedbacks?.map((feedback) => (
+                    <TableRow key={feedback._id}>
+                      <TableCell>{feedback.feedbackTitle}</TableCell>
+                      <TableCell>{feedback.students}</TableCell>
+                      <TableCell>{feedback.responses.length}</TableCell>
+                      <TableCell>
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger><button
+                              onClick={() => copyToClipboard(feedback._id)}
+                              className="mr-2 transition-transform transform hover:scale-105"
+                            >
+                              <FiCopy className={`w-5 h-5 ${copied === feedback._id ? 'animate-pulse' : ''}`} />
+                            </button></TooltipTrigger>
+                            <TooltipContent>
+                              <p>Copy Link</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+                      </TableCell>
+                      <TableCell>
+                        <Switch
+                          checked={feedback.isActive}
+                          onCheckedChange={() => handleToggleIsActive(feedback._id, feedback.isActive)}
+                        />
+                      </TableCell>
+                      <TableCell>
+                    <Button variant="destructive" onClick={() => handleDeleteFeedback(feedback._id) }>
+                      Delete
+                    </Button>
+                  </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            )}
+          </div>
+        )
+      }
+    </div >
   );
 };
 export default FeedbackForm;
