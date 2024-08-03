@@ -24,6 +24,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip"
+import { Loader2 } from 'lucide-react';
 
 
 const FeedbackForm = () => {
@@ -36,7 +37,9 @@ const FeedbackForm = () => {
   const [feedbackType, setFeedbackType] = useState('event');
   const [className, setClassName] = useState('');
   const [semester, setSemester] = useState('');
+  const [isTitleEdited, setIsTitleEdited] = useState(false);
   const [questions, setQuestions] = useState([]);
+  const [selectedQuestionSet, setSelectedQuestionSet] = useState(null);
   const [copied, setCopied] = useState('');
   const [formData, setFormData] = useState({
     feedbackTitle: '',
@@ -71,7 +74,9 @@ const FeedbackForm = () => {
   const fetchEventQuestions = async () => {
     try {
       const response = await axios.get(`/api/questions?type=event`);
-      setQuestions(response.data.questions);
+      setQuestions(response.data);
+      console.log(response.data);
+
     } catch (error) {
       console.log(error);
     }
@@ -88,6 +93,9 @@ const FeedbackForm = () => {
 
   const handleChange = (e, index) => {
     const { name, value } = e.target;
+    if (name === 'feedbackTitle') {
+      setFormData({ ...formData, feedbackTitle: value });
+    }
     if (name.startsWith('subject')) {
       const newSubjects = [...formData.subjects];
       newSubjects[index].subject = value;
@@ -144,20 +152,24 @@ const FeedbackForm = () => {
     setLoading(true);
     try {
       let feedbackTitle;
-      if (feedbackType === 'academic') {
+      if (feedbackType === 'academic' && subType === "theory") {
         feedbackTitle = generateFeedbackTitle();
         if (!feedbackTitle) {
           toast.error('All fields are required for academic feedback.');
           throw new Error('All fields are required for academic feedback.');
         }
       } else {
-        feedbackTitle = formData.feedbackTitle;
+        feedbackTitle = selectedQuestionSet?.feedbackId ||formData.feedbackTitle;
         if (!feedbackTitle) {
           toast.error('Feedback title is required.');
           throw new Error('Feedback title is required.');
         }
       }
 
+      if (questions.length == 0) {
+        toast.error('Questions are missing contact to superadmin to add questions and try again.');
+        throw new Error('Questions are missing contact to superadmin to add questions and try again.');
+      }
       if (!formData.students || formData.students <= 0) {
         toast.error('Number of students must be a positive number.');
         throw new Error('Number of students must be a positive number.');
@@ -194,10 +206,14 @@ const FeedbackForm = () => {
   };
 
   useEffect(() => {
-    if (questions?.length > 0) {
+    if (selectedQuestionSet && questions) {
+      console.log(questions);
+      console.log(selectedQuestionSet);
+        setFormData({ ...formData, questions: selectedQuestionSet.questions });
+    }else{
       setFormData({ ...formData, questions: questions });
     }
-  }, [questions]);
+  }, [questions,selectedQuestionSet]);
 
   const currentYear = new Date().getFullYear();
   const academicYearOptions = [
@@ -240,22 +256,30 @@ const FeedbackForm = () => {
   };
 
   const handleToggleIsActive = async (id, isActive) => {
-    setLoading(true); // Set loading to true when toggling feedback state
-    try {
-      await axios.put(`/api/feedback?_id=${id}`, { isActive: !isActive });
-      const updatedFeedbacks = feedbacks?.map(feedback => {
-        if (feedback._id === id) {
-          return { ...feedback, isActive: !isActive };
-        }
-        return feedback;
-      });
-      setFeedbacks(updatedFeedbacks);
-      toast.success('Feedback state updated successfully.');
-    } catch (error) {
-      console.error('Error updating feedback state:', error);
-      toast.error('Failed to update feedback state.');
-    } finally {
-      setLoading(false); // Set loading to false after toggling feedback state
+    const feedbackToUpdate = feedbacks?.find(feedback => feedback._id === id);
+    console.log(feedbackToUpdate);
+    if (feedbackToUpdate.students === feedbackToUpdate.responses.length) {
+      console.log("error");
+      toast.error('Feedback is already full.');
+    }
+    else {
+      setLoading(true); // Set loading to true when toggling feedback state
+      try {
+        await axios.put(`/api/feedback?_id=${id}`, { isActive: !isActive });
+        const updatedFeedbacks = feedbacks?.map(feedback => {
+          if (feedback._id === id) {
+            return { ...feedback, isActive: !isActive };
+          }
+          return feedback;
+        });
+        setFeedbacks(updatedFeedbacks);
+        toast.success('Feedback state updated successfully.');
+      } catch (error) {
+        console.error('Error updating feedback state:', error);
+        toast.error('Failed to update feedback state.');
+      } finally {
+        setLoading(false); // Set loading to false after toggling feedback state
+      }
     }
   };
   const copyToClipboard = (feedbackId) => {
@@ -270,6 +294,14 @@ const FeedbackForm = () => {
       toast.error('Failed to copy link');
     });
   };
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center min-h-screen">
+        <Loader2 className="h-8 w-8 animate-spin" />
+      </div>
+    );
+  }
   return (
     <div className="container mx-auto px-4 py-8">
       {!showFeedbackForm && (
@@ -295,6 +327,52 @@ const FeedbackForm = () => {
                 </Select>
               </div>
             )}
+            {feedbackType === 'event' && (
+              <div>
+                <Label htmlFor="questionSet">Select Question Set *</Label>
+                <Select
+                  value={selectedQuestionSet ? selectedQuestionSet._id : ''}
+                  onValueChange={(value) => setSelectedQuestionSet(questions.find(q => q._id === value))}
+                  required
+                >
+                  <SelectTrigger id="questionSet" className="w-full">
+                    <SelectValue placeholder="Select a Question Set" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {questions && questions.map((questionSet) => (
+                      <SelectItem key={questionSet._id} value={questionSet._id}>
+                        {questionSet.feedbackId}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
+
+            {feedbackType === 'event' && selectedQuestionSet && (
+              <>
+                <div>
+                  <Label>Feedback Title</Label>
+                  <Input
+                    id="feedbackTitle"
+                    type="text"
+                    name="feedbackTitle"
+                    value={selectedQuestionSet.feedbackId}
+                    onChange={handleChange}  />
+                    
+
+                </div>
+                <div>
+                  <Label>Resource Person</Label>
+                  <Input value={selectedQuestionSet.resourcePerson} disabled />
+                </div>
+                <div>
+                  <Label>Organization</Label>
+                  <Input value={selectedQuestionSet.organization} disabled />
+                </div>
+              </>
+            )}
+
             {feedbackType === 'academic' && (
               <div>
                 <Label htmlFor="subType">Feedback Subtype *</Label>
@@ -309,20 +387,22 @@ const FeedbackForm = () => {
                 </Select>
               </div>
             )}
-
-            <div>
-              <Label htmlFor="className">Class Name *</Label>
-              <Select value={className} onValueChange={(value) => setClassName(value)} required>
-                <SelectTrigger id="className" className="w-full">
-                  <SelectValue placeholder="Select a Class name" />
-                </SelectTrigger>
-                <SelectContent>
-                  {user && user?.classes?.map((option) => (
-                    <SelectItem key={option} value={option}>{option}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
+            {feedbackType === 'academic' && (
+              <div>
+                <Label htmlFor="className">Class Name *</Label>
+                <Select value={className} onValueChange={(value) => setClassName(value)} required>
+                  <SelectTrigger id="className" className="w-full">
+                    <SelectValue placeholder="Select a Class name" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {user && user?.classes?.map((option) => (
+                      <SelectItem key={option} value={option}>{option}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
+            {feedbackType === 'academic' && (
             <div>
               <Label htmlFor="semester">Semester *</Label>
               <Select value={semester} onValueChange={(value) => setSemester(value)} required>
@@ -335,6 +415,8 @@ const FeedbackForm = () => {
                 </SelectContent>
               </Select>
             </div>
+            )}
+             {feedbackType === 'academic' && (
             <div>
               <Label htmlFor="academicYear">Academic Year *</Label>
               <Select value={academicYear} onValueChange={(value) => setAcademicYear(value)} required>
@@ -348,23 +430,7 @@ const FeedbackForm = () => {
                 </SelectContent>
               </Select>
             </div>
-            <div>
-              {(feedbackType === 'event' || subType === 'practical') && (
-                <div>
-                  <Label htmlFor="feedbackTitle">Feedback Title *</Label>
-                  <Input
-                    id="feedbackTitle"
-                    type="text"
-                    name="feedbackTitle"
-                    placeholder="Enter Feedback Title"
-                    value={formData.feedbackTitle}
-                    onChange={handleChange}
-                    required
-                  />
-                </div>
-              )}
-            </div>
-
+            )}
             <div>
               <Label htmlFor="students">Number of Students *</Label>
               <Input
@@ -464,6 +530,7 @@ const FeedbackForm = () => {
                 <TableRow>
                   <TableHead>Feedback Title</TableHead>
                   <TableHead>Number of Students</TableHead>
+                  <TableHead>Number of Responses</TableHead>
                   <TableHead>Link</TableHead>
                   <TableHead>Active</TableHead>
                   <TableHead>Actions</TableHead>
@@ -474,20 +541,21 @@ const FeedbackForm = () => {
                   <TableRow key={feedback._id}>
                     <TableCell>{feedback.feedbackTitle}</TableCell>
                     <TableCell>{feedback.students}</TableCell>
+                    <TableCell>{feedback.responses.length}</TableCell>
                     <TableCell>
-                    <TooltipProvider>
-                      <Tooltip>
-                    <TooltipTrigger><button
-                        onClick={() => copyToClipboard(feedback._id)}
-                        className="mr-2 transition-transform transform hover:scale-105"
-                      >
-                        <FiCopy className={`w-5 h-5 ${copied === feedback._id ? 'animate-pulse' : ''}`} />
-                      </button></TooltipTrigger>
-                    <TooltipContent>
-                      <p>Copy Link</p>
-                      </TooltipContent>
-                    </Tooltip>
-                    </TooltipProvider>
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger><button
+                            onClick={() => copyToClipboard(feedback._id)}
+                            className="mr-2 transition-transform transform hover:scale-105"
+                          >
+                            <FiCopy className={`w-5 h-5 ${copied === feedback._id ? 'animate-pulse' : ''}`} />
+                          </button></TooltipTrigger>
+                          <TooltipContent>
+                            <p>Copy Link</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
                     </TableCell>
                     <TableCell>
                       <Switch

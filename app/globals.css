@@ -68,7 +68,7 @@
 
 
   .sidebar__wrapper {
-    position: relative;
+    position: zz;
   }
   
   
@@ -128,7 +128,7 @@
   
   .sidebar__link--active {
     color: #fff;
-    background-color: #212121;
+    background-color: #35374B;
   }
   
   .sidebar__icon {
@@ -182,6 +182,8 @@
       top: 0;
     }
   }
+  
+
 
 /* Updated button styles with animated stars */
 .custom-button-container {
@@ -356,3 +358,16 @@
   transition-duration: 400ms;
   transition-property: width, left;
 }
+
+/*   @keyframes shake {
+    0% { transform: translateX(0); }
+    10%, 90% { transform: translateX(-1px); }
+    20%, 80% { transform: translateX(2px); }
+    30%, 50%, 70% { transform: translateX(-4px); }
+    40%, 60% { transform: translateX(4px); }
+  }
+  
+  .animate-shake {
+    animation: shake 0.5s;
+  } */
+

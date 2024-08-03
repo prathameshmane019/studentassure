@@ -10,7 +10,6 @@ export async function GET(req) {
         await connectMongoDB();
 
         let feedbacks;
-
         if (_id) {
             feedbacks = await Feedback.findOne({ _id, isActive: true });
         } else if (department) {
@@ -18,10 +17,8 @@ export async function GET(req) {
         } else {
             feedbacks = await Feedback.find({isActive: true }).select("_id feedbackTitle"); // Fetch all feedbacks if no filters are applied
         }
-
         console.log("Feedback fetched Successfully");
         console.log(feedbacks);
-
         return NextResponse.json(feedbacks, { status: 200 });
     } catch (error) {
         console.log(error);
