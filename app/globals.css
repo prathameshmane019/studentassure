@@ -1,189 +1,186 @@
+/* Global Tailwind CSS Base, Components, and Utilities */
 @tailwind base;
-  @tailwind components;
-  @tailwind utilities;
+@tailwind components;
+@tailwind utilities;
 
-  @layer base {
-    :root {
-      --background: 0 0% 100%;
-      --foreground: 222.2 84% 4.9%;
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 222.2 84% 4.9%;
 
-      --card: 0 0% 100%;
-      --card-foreground: 222.2 84% 4.9%;
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 84% 4.9%;
 
-      --popover: 0 0% 100%;
-      --popover-foreground: 222.2 84% 4.9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 84% 4.9%;
 
-      --primary: 222.2 47.4% 11.2%;
-      --primary-foreground: 210 40% 98%;
+    --primary: 222.2 47.4% 11.2%;
+    --primary-foreground: 210 40% 98%;
 
-      --secondary: 210 40% 96.1%;
-      --secondary-foreground: 222.2 47.4% 11.2%;
+    --secondary: 210 40% 96.1%;
+    --secondary-foreground: 222.2 47.4% 11.2%;
 
-      --muted: 210 40% 96.1%;
-      --muted-foreground: 215.4 16.3% 46.9%;
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
 
-      --accent: 210 40% 96.1%;
-      --accent-foreground: 222.2 47.4% 11.2%;
+    --accent: 210 40% 96.1%;
+    --accent-foreground: 222.2 47.4% 11.2%;
 
-      --destructive: 0 84.2% 60.2%;
-      --destructive-foreground: 210 40% 98%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
 
-      --border: 214.3 31.8% 91.4%;
-      --input: 214.3 31.8% 91.4%;
-      --ring: 222.2 84% 4.9%;
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 222.2 84% 4.9%;
 
-      --radius: 0.5rem;
-    }
-
-    .dark {
-      --background: 222.2 84% 4.9%;
-      --foreground: 210 40% 98%;
-
-      --card: 222.2 84% 4.9%;
-      --card-foreground: 210 40% 98%;
-
-      --popover: 222.2 84% 4.9%;
-      --popover-foreground: 210 40% 98%;
-
-      --primary: 210 40% 98%;
-      --primary-foreground: 222.2 47.4% 11.2%;
-
-      --secondary: 217.2 32.6% 17.5%;
-      --secondary-foreground: 210 40% 98%;
-
-      --muted: 217.2 32.6% 17.5%;
-      --muted-foreground: 215 20.2% 65.1%;
-
-      --accent: 217.2 32.6% 17.5%;
-      --accent-foreground: 210 40% 98%;
-
-      --destructive: 0 62.8% 30.6%;
-      --destructive-foreground: 210 40% 98%;
-
-      --border: 217.2 32.6% 17.5%;
-      --input: 217.2 32.6% 17.5%;
-      --ring: 212.7 26.8% 83.9%;
-    }
+    --radius: 0.5rem;
   }
 
+  .dark {
+    --background: 222.2 84% 4.9%;
+    --foreground: 210 40% 98%;
 
-  .sidebar__wrapper {
-    position: zz;
+    --card: 222.2 84% 4.9%;
+    --card-foreground: 210 40% 98%;
+
+    --popover: 222.2 84% 4.9%;
+    --popover-foreground: 210 40% 98%;
+
+    --primary: 210 40% 98%;
+    --primary-foreground: 222.2 47.4% 11.2%;
+
+    --secondary: 217.2 32.6% 17.5%;
+    --secondary-foreground: 210 40% 98%;
+
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
+
+    --accent: 217.2 32.6% 17.5%;
+    --accent-foreground: 210 40% 98%;
+
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+    --ring: 212.7 26.8% 83.9%;
   }
-  
-  
-  
-  .sidebar {
-    width: 17rem;
-    height: 100%;
-    background-color: var(--color-bg);
-    padding: 1rem;
-    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.1);
-    overflow: hidden;
+}
+
+.sidebar__wrapper {
+  position: relative;
+}
+
+.sidebar {
+  width: 17rem;
+  height: 100%;
+  background-color: var(--color-bg);
+  padding: 1rem;
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.1);
+  overflow: hidden;
+}
+
+.sidebar__top {
+  width: max-content;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding-bottom: 1rem;
+  margin-bottom: 1rem;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.sidebar__logo {
+  width: 3.5rem;
+  height: 3.5rem;
+  object-fit: contain;
+  border-radius: 1rem;
+}
+
+.sidebar__logo-name {
+  font-size: 1.2rem;
+  font-weight: 600;
+}
+
+.sidebar__list {
+  list-style: none;
+}
+
+.sidebar__link:hover {
+  background-color: #efebeb;
+  color: #212121;
+}
+
+.sidebar__link {
+  display: inline-block;
+  font-size: 1rem;
+  text-decoration: none;
+  padding: 0.4rem 0.8rem;
+  display: flex;
+  background-color: var(--color-sidebar-item);
+  margin-bottom: 1rem;
+  border-radius: 0.8rem;
+  align-items: center;
+  justify-content: start;
+}
+
+.sidebar__link--active {
+  color: #fff;
+  background-color: #35374B;
+}
+
+.sidebar__icon {
+  display: inline-block;
+  font-size: 1.2rem;
+}
+
+.sidebar__name {
+  margin-left: 0.5rem;
+}
+
+[data-collapse="true"] {
+  width: 5.3rem;
+}
+
+[data-collapse="true"] .sidebar__name,
+[data-collapse="true"] .sidebar__logo-name {
+  display: none;
+}
+
+.btn {
+  position: absolute;
+  right: -1.25rem;
+  top: 1.25rem;
+  border: none;
+  background-color: var(--color-bg);
+  width: 2.5rem;
+  height: 2.5rem;
+  border: 1px solid var(--color-border);
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  transform: translateX(50%);
+  font-size: 2.1rem;
+  background: #ffffff;
+  color: #212121;
+  z-index: 50;
+}
+
+@media print {
+  body * {
+    visibility: hidden;
   }
-  
-  .sidebar__top {
-    width: max-content;
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    padding-bottom: 1rem;
-    margin-bottom: 1rem;
-    border-bottom: 1px solid var(--color-border);
+  #table-to-print, #table-to-print * {
+    visibility: visible;
   }
-  
-  .sidebar__logo {
-    width: 3.5rem;
-    height: 3.5rem;
-    object-fit: contain;
-    border-radius: 1rem;
-  }
-  
-  .sidebar__logo-name {
-    font-size: 1.2rem;
-    font-weight: 600;
-    
-  }
-  
-  .sidebar__list {
-    list-style: none;
-  }
-  
-  .sidebar__link:hover {
-    background-color: #efebeb;
-    color:#212121;
-  }
-  .sidebar__link {
-    display: inline-block;
-    font-size: 1rem;
-    text-decoration: none;
-    padding: 0.4rem 0.8rem;
-    display: flex;
-    background-color: var(--color-sidebar-item);
-    margin-bottom: 1rem;
-    border-radius: 0.8rem;
-    align-items: center;
-    justify-content: start;
-  }
-  
-  .sidebar__link--active {
-    color: #fff;
-    background-color: #35374B;
-  }
-  
-  .sidebar__icon {
-    display: inline-block;
-    font-size: 1.2rem;
-  }
-  
-  .sidebar__name {
-    margin-left: 0.5rem;
-  }
-  
-  [data-collapse="true"] {
-    width: 5.3rem;
-  }
-  
-  [data-collapse="true"] .sidebar__name,
-  [data-collapse="true"] .sidebar__logo-name {
-    display: none;
-  }
-  
-  .btn {
+  #table-to-print {
     position: absolute;
-    right: 0;
-    top: 4.7rem;
-    border: none;
-    background-color: var(--color-bg);
-    width: 2.5rem;
-    height: 2.5rem;
-    border: 1px solid var(--color-border);
-    border-radius: 50%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    cursor: pointer;
-    transform: translateX(50%);
-    font-size: 2.1rem;
-    background: #ffffff;
-    color: #212121;
-  
+    left: 0;
+    top: 0;
   }
-  @media print {
-    body * {
-      visibility: hidden;
-    }
-    #table-to-print, #table-to-print * {
-      visibility: visible;
-    }
-    #table-to-print {
-      position: absolute;
-      left: 0;
-      top: 0;
-    }
-  }
-  
-
+}
 
 /* Updated button styles with animated stars */
 .custom-button-container {
@@ -192,6 +189,7 @@
   align-items: center;
   height: 100vh;
 }
+
 .custom-button {
   position: relative;
   padding: 12px 35px;
@@ -314,11 +312,6 @@
   fill: #4c83fa;
 }
 
-
-
-
-/* styles/globals.css */
-
 .b1 {
   font-size: 18px;
   color: #4c7a8c;
@@ -359,15 +352,29 @@
   transition-property: width, left;
 }
 
-/*   @keyframes shake {
-    0% { transform: translateX(0); }
-    10%, 90% { transform: translateX(-1px); }
-    20%, 80% { transform: translateX(2px); }
-    30%, 50%, 70% { transform: translateX(-4px); }
-    40%, 60% { transform: translateX(4px); }
+@keyframes shake {
+  0% {
+    transform: translateX(0);
   }
-  
-  .animate-shake {
-    animation: shake 0.5s;
-  } */
+  10%,
+  90% {
+    transform: translateX(-1px);
+  }
+  20%,
+  80% {
+    transform: translateX(2px);
+  }
+  30%,
+  50%,
+  70% {
+    transform: translateX(-4px);
+  }
+  40%,
+  60% {
+    transform: translateX(4px);
+  }
+}
 
+.animate-shake {
+  animation: shake 0.5s;
+}
