@@ -7,10 +7,25 @@ const questionsSchema = new Schema(
     feedbackType: {
       type: String,
       required: true,
+      enum: ['academic', 'event']
     },
     subType: {
-        type: String
-      },
+      type: String,
+      required: function() { return this.feedbackType === 'academic'; },
+      enum: ['theory', 'practical']
+    },
+    feedbackId: {
+      type: String,
+      
+    },
+    resourcePerson: {
+      type: String,
+      
+    },
+    organization: {
+      type: String,
+      
+    },
     questions: [
       {
         type: String,
@@ -20,7 +35,7 @@ const questionsSchema = new Schema(
   },
   {
     timestamps: true, 
- }
+  }
 );
 
 const Questions = mongoose.models.Questions || model('Questions', questionsSchema);

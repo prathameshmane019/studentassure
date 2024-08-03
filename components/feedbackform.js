@@ -39,6 +39,7 @@ const FeedbackForm = () => {
   const [semester, setSemester] = useState('');
   const [isTitleEdited, setIsTitleEdited] = useState(false);
   const [questions, setQuestions] = useState([]);
+  const [selectedQuestionSet, setSelectedQuestionSet] = useState(null);
   const [copied, setCopied] = useState('');
   const [formData, setFormData] = useState({
     feedbackTitle: '',
@@ -73,7 +74,9 @@ const FeedbackForm = () => {
   const fetchEventQuestions = async () => {
     try {
       const response = await axios.get(`/api/questions?type=event`);
-      setQuestions(response.data.questions);
+      setQuestions(response.data);
+      console.log(response.data);
+
     } catch (error) {
       console.log(error);
     }
@@ -156,7 +159,7 @@ const FeedbackForm = () => {
           throw new Error('All fields are required for academic feedback.');
         }
       } else {
-        feedbackTitle = formData.feedbackTitle;
+        feedbackTitle = selectedQuestionSet?.feedbackId ||formData.feedbackTitle;
         if (!feedbackTitle) {
           toast.error('Feedback title is required.');
           throw new Error('Feedback title is required.');
@@ -203,10 +206,14 @@ const FeedbackForm = () => {
   };
 
   useEffect(() => {
-    if (questions?.length > 0) {
+    if (selectedQuestionSet && questions) {
+      console.log(questions);
+      console.log(selectedQuestionSet);
+        setFormData({ ...formData, questions: selectedQuestionSet.questions });
+    }else{
       setFormData({ ...formData, questions: questions });
     }
-  }, [questions]);
+  }, [questions,selectedQuestionSet]);
 
   const currentYear = new Date().getFullYear();
   const academicYearOptions = [
@@ -320,6 +327,52 @@ const FeedbackForm = () => {
                 </Select>
               </div>
             )}
+            {feedbackType === 'event' && (
+              <div>
+                <Label htmlFor="questionSet">Select Question Set *</Label>
+                <Select
+                  value={selectedQuestionSet ? selectedQuestionSet._id : ''}
+                  onValueChange={(value) => setSelectedQuestionSet(questions.find(q => q._id === value))}
+                  required
+                >
+                  <SelectTrigger id="questionSet" className="w-full">
+                    <SelectValue placeholder="Select a Question Set" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {questions && questions.map((questionSet) => (
+                      <SelectItem key={questionSet._id} value={questionSet._id}>
+                        {questionSet.feedbackId}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
+
+            {feedbackType === 'event' && selectedQuestionSet && (
+              <>
+                <div>
+                  <Label>Feedback Title</Label>
+                  <Input
+                    id="feedbackTitle"
+                    type="text"
+                    name="feedbackTitle"
+                    value={selectedQuestionSet.feedbackId}
+                    onChange={handleChange}  />
+                    
+
+                </div>
+                <div>
+                  <Label>Resource Person</Label>
+                  <Input value={selectedQuestionSet.resourcePerson} disabled />
+                </div>
+                <div>
+                  <Label>Organization</Label>
+                  <Input value={selectedQuestionSet.organization} disabled />
+                </div>
+              </>
+            )}
+
             {feedbackType === 'academic' && (
               <div>
                 <Label htmlFor="subType">Feedback Subtype *</Label>
@@ -334,20 +387,22 @@ const FeedbackForm = () => {
                 </Select>
               </div>
             )}
-
-            <div>
-              <Label htmlFor="className">Class Name *</Label>
-              <Select value={className} onValueChange={(value) => setClassName(value)} required>
-                <SelectTrigger id="className" className="w-full">
-                  <SelectValue placeholder="Select a Class name" />
-                </SelectTrigger>
-                <SelectContent>
-                  {user && user?.classes?.map((option) => (
-                    <SelectItem key={option} value={option}>{option}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
+            {feedbackType === 'academic' && (
+              <div>
+                <Label htmlFor="className">Class Name *</Label>
+                <Select value={className} onValueChange={(value) => setClassName(value)} required>
+                  <SelectTrigger id="className" className="w-full">
+                    <SelectValue placeholder="Select a Class name" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {user && user?.classes?.map((option) => (
+                      <SelectItem key={option} value={option}>{option}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
+            {feedbackType === 'academic' && (
             <div>
               <Label htmlFor="semester">Semester *</Label>
               <Select value={semester} onValueChange={(value) => setSemester(value)} required>
@@ -360,6 +415,8 @@ const FeedbackForm = () => {
                 </SelectContent>
               </Select>
             </div>
+            )}
+             {feedbackType === 'academic' && (
             <div>
               <Label htmlFor="academicYear">Academic Year *</Label>
               <Select value={academicYear} onValueChange={(value) => setAcademicYear(value)} required>
@@ -373,26 +430,7 @@ const FeedbackForm = () => {
                 </SelectContent>
               </Select>
             </div>
-            <div>
-              {(feedbackType === 'event' || subType === 'practical') && (
-                <div>
-                  <Label htmlFor="feedbackTitle">Feedback Title *</Label>
-                  <Input
-                    id="feedbackTitle"
-                    type="text"
-                    name="feedbackTitle"
-                    placeholder={generateFeedbackTitle()}
-                    value={isTitleEdited ? formData.feedbackTitle : generateFeedbackTitle() + formData.feedbackTitle}
-                    onChange={(e) => {
-                      setIsTitleEdited(true);
-                      handleChange(e);
-                    }}
-                    required
-                  />
-                </div>
-              )}
-            </div>
-
+            )}
             <div>
               <Label htmlFor="students">Number of Students *</Label>
               <Input
