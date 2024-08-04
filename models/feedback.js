@@ -52,7 +52,14 @@ const feedbackSchema = new Schema(
       type: String,
       required: true,
     },
-    
+    resourcePerson: {
+      type: String,
+      
+    },
+    organization: {
+      type: String,
+      
+    },
     isActive: {
       type: Boolean,
       required: true,

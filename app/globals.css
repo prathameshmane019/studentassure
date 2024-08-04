@@ -149,8 +149,8 @@
 
 .btn {
   position: absolute;
-  right: -1.25rem;
-  top: 1.25rem;
+  right: 0rem;
+  top: 4.0rem;
   border: none;
   background-color: var(--color-bg);
   width: 2.5rem;

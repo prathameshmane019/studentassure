@@ -9,6 +9,8 @@ import { toast } from 'sonner';
 import { Switch } from "@/components/ui/switch";
 import { Spinner } from "@nextui-org/react"; // Import Spinner
 import { FiCopy } from 'react-icons/fi';
+import { Separator } from "@/components/ui/separator"
+import { X } from 'lucide-react';
 
 import {
   Table,
@@ -38,14 +40,12 @@ const FeedbackForm = () => {
   const [feedbackType, setFeedbackType] = useState('event');
   const [className, setClassName] = useState('');
   const [semester, setSemester] = useState('');
-  const [isTitleEdited, setIsTitleEdited] = useState(false);
   const [questions, setQuestions] = useState([]);
   const [selectedQuestionSet, setSelectedQuestionSet] = useState(null);
   const [copied, setCopied] = useState('');
   const [generatedTitle, setGeneratedTitle] = useState('');
-  const [showDialog, setShowDialog] = useState(false);
-  const [selectedFeedbackId, setSelectedFeedbackId] = useState(null);
-
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [feedbackToDelete, setFeedbackToDelete] = useState(null);
   const [formData, setFormData] = useState({
     feedbackTitle: '',
     selectedQuestion: null,
@@ -61,8 +61,8 @@ const FeedbackForm = () => {
 
   useEffect(() => {
     if (user) {
-      setUserDepartment(user.department);
-      setFormData({ ...formData, department: user.department });
+      setUserDepartment(user?.department);
+      setFormData({ ...formData, department: user?.department });
     }
   }, [user]);
 
@@ -143,8 +143,8 @@ const FeedbackForm = () => {
     setSemester('');
     setQuestions([]);
     setShowFeedbackForm(false),
-    setSelectedQuestionSet(null),
-    setGeneratedTitle(''),
+      setSelectedQuestionSet(null),
+      setGeneratedTitle(''),
       setFormData({
         feedbackTitle: '',
         selectedQuestion: [],
@@ -163,12 +163,8 @@ const FeedbackForm = () => {
     try {
       let feedbackTitle;
       if (feedbackType === 'academic' && subType === "practical") {
-        feedbackTitle = generatedTitle
-        console.log(generatedTitle);
-        
-      }
-      else
-      if (feedbackType === 'academic' && subType === "theory") {
+        feedbackTitle = generatedTitle;
+      } else if (feedbackType === 'academic' && subType === "theory") {
         feedbackTitle = generateFeedbackTitle();
         if (!feedbackTitle) {
           toast.error('All fields are required for academic feedback.');
@@ -183,8 +179,8 @@ const FeedbackForm = () => {
       }
 
       if (questions?.questions?.length == 0) {
-        toast.error('Questions are missing contact to superadmin to add questions and try again.');
-        throw new Error('Questions are missing contact to superadmin to add questions and try again.');
+        toast.error('Questions are missing. Contact superadmin to add questions and try again.');
+        throw new Error('Questions are missing. Contact superadmin to add questions and try again.');
       }
       if (!formData.students || formData.students <= 0) {
         toast.error('Number of students must be a positive number.');
@@ -196,26 +192,39 @@ const FeedbackForm = () => {
         throw new Error('Password is required.');
       }
 
+      if (!userDepartment) {
+        toast.error('Department is required.');
+        throw new Error('Department is required.');
+      }
+
       const filteredSubjects = feedbackType === 'event' ? formData.subjects.filter(subject => subject.subject && subject.faculty && subject._id) : formData.subjects;
 
       const updatedFormData = {
         ...formData,
         feedbackTitle: feedbackTitle,
         feedbackType: feedbackType,
-        subjects: filteredSubjects
+        subjects: filteredSubjects,
+        department: userDepartment, // Ensure department is included
       };
+
+      // Include resourcePerson and organization for event feedback
+      if (feedbackType === 'event' && selectedQuestionSet) {
+        updatedFormData.resourcePerson = selectedQuestionSet.resourcePerson;
+        updatedFormData.organization = selectedQuestionSet.organization;
+      }
+
       console.log(updatedFormData);
 
-      await axios.post('/api/feedback', updatedFormData);
+      const response = await axios.post('/api/feedback', updatedFormData);
+      setFeedbacks([...feedbacks, response.data.feedback])
       handleCancel();
       toast.success("Feedback created successfully");
     } catch (error) {
       console.log(error);
-
       toast.error(error.response?.data?.error || error.message);
     } finally {
       setLoading(false);
-      handleCancel()
+      handleCancel();
     }
   };
   const generateFeedbackTitle = () => {
@@ -224,12 +233,12 @@ const FeedbackForm = () => {
     }
     return '';
   };
-  
+
   useEffect(() => {
-  if (user && className && semester && subType && academicYear) {
-    setGeneratedTitle(`${academicYear} ${user.department} ${className} ${subType.toUpperCase()} Semester ${semester}`);
-  }
-}, [user, className, semester, subType, academicYear]);
+    if (user && className && semester && subType && academicYear) {
+      setGeneratedTitle(`${academicYear} ${user.department} ${className} ${subType.toUpperCase()} Semester ${semester}`);
+    }
+  }, [user, className, semester, subType, academicYear]);
 
   useEffect(() => {
     if (selectedQuestionSet && questions) {
@@ -263,29 +272,38 @@ const FeedbackForm = () => {
       console.error('Error fetching feedbacks:', error);
       toast.error('Failed to fetch feedbacks.');
     } finally {
-      setLoading(false); // Set loading to false after fetching feedbacks
+      setLoading(false);
     }
+  };
+
+  const confirmDelete = (questionSetId) => {
+    setFeedbackToDelete(questionSetId);
+    setIsDeleteModalOpen(true);
   };
 
 
   const handleDeleteFeedback = async (id) => {
     setLoading(true); // Set loading to true when deleting feedback
-    try {
-      await axios.delete(`/api/feedback?_id=${id}`);
-      setFeedbacks(feedbacks.filter(feedback => feedback._id !== id));
-      toast.success('Feedback deleted successfully.');
-    } catch (error) {
-      console.error('Error deleting feedback:', error);
-      toast.error('Failed to delete feedback.');
-    } finally {
-      setLoading(false); // Set loading to false after deleting feedback
+    if (feedbackToDelete) {
+      try {
+        await axios.delete(`/api/feedback?_id=${feedbackToDelete}`);
+        setFeedbacks(feedbacks.filter(feedback => feedback._id !== feedbackToDelete));
+        toast.success('Feedback deleted successfully.');
+      } catch (error) {
+        console.error('Error deleting feedback:', error);
+        toast.error('Failed to delete feedback.');
+      } finally {
+        setLoading(false);
+        setIsDeleteModalOpen(false);
+        setFeedbackToDelete(null); // Set loading to false after deleting feedback
+      }
     }
   };
 
   const handleToggleIsActive = async (id, isActive) => {
     const feedbackToUpdate = feedbacks?.find(feedback => feedback._id === id);
     console.log(feedbackToUpdate);
-    if (feedbackToUpdate.students === feedbackToUpdate?.responses?.length) {
+    if (feedbackToUpdate.students === feedbackToUpdate?.responseCount) {
       console.log("error");
       toast.error('Feedback is already full.');
     }
@@ -321,6 +339,44 @@ const FeedbackForm = () => {
       toast.error('Failed to copy link');
     });
   };
+  if (isDeleteModalOpen) {
+    return (
+      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div className="bg-white rounded-lg shadow-xl w-full max-w-md">
+          <div className="flex justify-between items-center p-6 border-b">
+            <h2 className="text-xl font-semibold text-gray-900">Confirm Deletion</h2>
+            <button
+              onClick={() => setIsDeleteModalOpen(false)}
+              className="text-gray-400 hover:text-gray-500 transition-colors"
+            >
+              <X size={24} />
+            </button>
+          </div>
+          <div className="p-6">
+            <p className="text-gray-600 mb-4">
+              Are you sure you want to delete this question set? This action cannot be undone.
+            </p>
+            <Separator className="my-4" />
+            <div className="flex justify-end space-x-3">
+              <Button
+                variant="outline"
+                onClick={() => setIsDeleteModalOpen(false)}
+                className="px-4 py-2"
+              >
+                Cancel
+              </Button>
+              <Button
+                onClick={handleDeleteFeedback}
+                className="px-4 py-2"
+              >
+                Delete
+              </Button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   if (loading) {
     return (
@@ -550,9 +606,9 @@ const FeedbackForm = () => {
             </div>
           )}
 
-          <div className="mt-6 flex justify-between">
-            <Button type="button" onClick={handleCancel}>Cancel</Button>
-            <Button type="submit">Create Feedback</Button>
+          <div className="mt-6 flex gap-6 justify-center">
+            <Button variant="outline" className="max-w-40" type="button" onClick={handleCancel}>Cancel</Button>
+            <Button type="submit" className="max-w-40">Create Feedback</Button>
           </div>
         </form>
       )
@@ -582,7 +638,7 @@ const FeedbackForm = () => {
                     <TableRow key={feedback._id}>
                       <TableCell>{feedback.feedbackTitle}</TableCell>
                       <TableCell>{feedback.students}</TableCell>
-                      <TableCell>{feedback.responses.length}</TableCell>
+                      <TableCell>{feedback.responseCount}</TableCell>
                       <TableCell>
                         <TooltipProvider>
                           <Tooltip>
@@ -605,10 +661,14 @@ const FeedbackForm = () => {
                         />
                       </TableCell>
                       <TableCell>
-                    <Button variant="destructive" onClick={() => handleDeleteFeedback(feedback._id) }>
-                      Delete
-                    </Button>
-                  </TableCell>
+                        <Button
+                          type="button"
+                          size="sm"
+                          onClick={() => confirmDelete(feedback._id)}
+                        >
+                          Delete
+                        </Button>
+                      </TableCell>
                     </TableRow>
                   ))}
                 </TableBody>

@@ -258,15 +258,18 @@ const FeedbackForm = ({ params }) => {
               <h3 className="text-2xl font-semibold mb-2">
                 {selectedFeedback.subjects[currentSubjectIndex].subject}
               </h3>
-              <p className="text-lg text-gray-600 mb-6">
+              <p className="text-lg text-gray-600 mb-2">
                 Faculty: {selectedFeedback.subjects[currentSubjectIndex].faculty}
               </p>
             </>
           ) : (
             <>
-              <h3 className="text-2xl font-semibold mb-2">
+             <h3 className="text-2xl font-semibold mb-2">
                 {selectedFeedback.feedbackTitle}
               </h3>
+              {selectedFeedback.resourcePerson && <p className="text-lg text-gray-600 mb-2">Resource Person: {selectedFeedback.resourcePerson}</p>}
+            {selectedFeedback.organization && <p className="text-lg text-gray-600 mb-2">Organization : {selectedFeedback.organization}</p>}
+             
             </>
           )}
           {selectedFeedback.questions.map((question, qIndex) => (

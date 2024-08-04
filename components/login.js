@@ -99,7 +99,7 @@ export default function LoginComponent() {
             />
           </div>
           <div className="flex justify-center space-x-4 mt-10">
-            <Button color="default" onClick={handleCancel} className="w-36" disabled={isLoading}>
+            <Button variant="outline" type="button" color="default" onClick={handleCancel} className="w-36" disabled={isLoading}>
               Cancel
             </Button>
             <Button color="primary" type="submit" className="w-36" disabled={isLoading}>
