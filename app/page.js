@@ -82,7 +82,6 @@ export default function Home() {
         <footer className="bg-white shadow-md py-6">
           <div className="container mx-auto text-center">
             <p className="text-gray-600 mb-4">&copy; {new Date().getFullYear()} UnityTech Solutions. All rights reserved.</p>
-           
           </div>
         </footer>
       </div>
