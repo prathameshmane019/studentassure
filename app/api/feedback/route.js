@@ -6,6 +6,9 @@ export async function POST(req) {
     try {
         await connectMongoDB();
         const data = await req.json();
+        if(!data.department){
+            return NextResponse.json({ message: "Department missing"},{status:400});
+        }
         console.log(data);    
         const newFeedback = new Feedback(data);
         await newFeedback.save();
@@ -17,21 +20,29 @@ export async function POST(req) {
         return NextResponse.json({ error: "Failed to create feedback" });
     }
 }
-
 export async function GET(req) {
     try {
-        const {searchParams}= new URL(req.url);
+        const {searchParams} = new URL(req.url);
         const department = searchParams.get("department");
-    
+   
         await connectMongoDB();
-        let feedbacks
-         feedbacks = await Feedback.find({department:department}).select("feedbackTitle responses isActive students")
+        
+        const feedbacks = await Feedback.aggregate([
+            { $match: { department: department } },
+            { $project: {
+                feedbackTitle: 1,
+                isActive: 1,
+                students: 1,
+                responseCount: { $size: "$responses" }
+            }}
+        ]);
+
         console.log("Feedback fetched Successfully");
         console.log(feedbacks);
-        return NextResponse.json(feedbacks,{status:200});
+        return NextResponse.json(feedbacks, {status: 200});
     } catch (error) {
         console.log(error);
-        return NextResponse.json({ error: "Failed to create feedback" },{status:500});
+        return NextResponse.json({ error: "Failed to fetch feedback" }, {status: 500});
     }
 }
 export async function DELETE(req) {
