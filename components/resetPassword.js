@@ -1,6 +1,7 @@
 "use client"
 import React, { useState } from 'react';
-import { Input, Button } from '@nextui-org/react';
+import { Input } from './ui/input';
+import { Button } from './ui/button';
 import { toast } from 'sonner';
 import axios from 'axios';
 import { useRouter } from 'next/navigation';
@@ -59,7 +60,7 @@ const router = useRouter();
             className="mb-4"
           />
           <div className="flex justify-center space-x-4 mt-10">
-            <Button color="default" onClick={() => { setIdentifier(''); setOldPassword(''); setNewPassword(''); }} className="w-36" disabled={isLoading}>
+            <Button variant="outline" type="button" onClick={() => { setIdentifier(''); setOldPassword(''); setNewPassword(''); }} className="w-36" disabled={isLoading}>
               Cancel
             </Button>
             <Button color="primary" type="submit" className="w-36" disabled={isLoading}>
