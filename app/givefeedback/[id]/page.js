@@ -269,6 +269,8 @@ const FeedbackForm = ({ params }) => {
               </h3>
               {selectedFeedback.resourcePerson && <p className="text-lg text-gray-600 mb-2">Resource Person: {selectedFeedback.resourcePerson}</p>}
             {selectedFeedback.organization && <p className="text-lg text-gray-600 mb-2">Organization : {selectedFeedback.organization}</p>}
+            {selectedFeedback.note && <p className="text-lg text-gray-600 mb-2">Note : {selectedFeedback.note}</p>}
+
              
             </>
           )}

@@ -60,6 +60,10 @@ const feedbackSchema = new Schema(
       type: String,
       
     },
+    note: {
+      type: String,
+      
+    },
     isActive: {
       type: Boolean,
       required: true,
