@@ -26,6 +26,10 @@ const questionsSchema = new Schema(
       type: String,
       
     },
+    note: {
+      type: String,
+      
+    },
     questions: [
       {
         type: String,

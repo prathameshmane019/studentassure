@@ -32,6 +32,7 @@ const QuestionForm = () => {
   const [feedbackId, setFeedbackId] = useState("");
   const [resourcePerson, setResourcePerson] = useState("");
   const [organization, setOrganization] = useState("");
+  const [note, setNote] = useState("");
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 const [questionSetToDelete, setQuestionSetToDelete] = useState(null);
   const fetchSavedQuestions = async () => {
@@ -81,6 +82,7 @@ const [questionSetToDelete, setQuestionSetToDelete] = useState(null);
         feedbackId,
         resourcePerson,
         organization,
+        note,
       }),
     };
     try {
@@ -90,6 +92,7 @@ const [questionSetToDelete, setQuestionSetToDelete] = useState(null);
       setFeedbackId("");
       setResourcePerson("");
       setOrganization("");
+      setNote("");
       fetchSavedQuestions();
       toast.success("Questions added successfully!");
     } catch (error) {
@@ -220,6 +223,12 @@ const [questionSetToDelete, setQuestionSetToDelete] = useState(null);
                     placeholder="Organization"
                     required
                   />
+                    <Input
+                    value={note}
+                    onChange={(e) => setNote(e.target.value)}
+                    placeholder="Add Note"
+                    required
+                  />
                 </div>
               )}
 
@@ -243,7 +252,7 @@ const [questionSetToDelete, setQuestionSetToDelete] = useState(null);
               disabled={
                 !feedbackType ||
                 (feedbackType === "academic" && !subType) ||
-                (feedbackType === "event" && (!feedbackId || !resourcePerson || !organization)) ||
+                (feedbackType === "event" && (!feedbackId || !resourcePerson || !organization|| !note)) ||
                 questions.length === 0
               }
             >
@@ -279,6 +288,7 @@ const [questionSetToDelete, setQuestionSetToDelete] = useState(null);
                       <p><strong>Feedback ID:</strong> {questionSet.feedbackId}</p>
                       <p><strong>Resource Person:</strong> {questionSet.resourcePerson}</p>
                       <p><strong>Organization:</strong> {questionSet.organization}</p>
+                      <p><strong>Note:</strong> {questionSet.note}</p>
                     </div>
                   )}
                   {questionSet.questions.map((question, questionIndex) => (

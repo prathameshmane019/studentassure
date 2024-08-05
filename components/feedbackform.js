@@ -211,6 +211,7 @@ const FeedbackForm = () => {
       if (feedbackType === 'event' && selectedQuestionSet) {
         updatedFormData.resourcePerson = selectedQuestionSet.resourcePerson;
         updatedFormData.organization = selectedQuestionSet.organization;
+        updatedFormData.note = selectedQuestionSet.note;
       }
 
       console.log(updatedFormData);
@@ -453,6 +454,10 @@ const FeedbackForm = () => {
                   <Label>Organization</Label>
                   <Input value={selectedQuestionSet.organization} disabled />
                 </div>
+                <div>
+                  <Label>Note</Label>
+                  <Input value={selectedQuestionSet.note} disabled />
+                </div>
               </>
             )}
 
@@ -499,18 +504,7 @@ const FeedbackForm = () => {
                 </Select>
               </div>
             )}
-            {feedbackType === 'academic' && subType === "practical" && (
-              <div >
-                <Label>Feedback Title</Label>
-                <Input
-                  id="feedbackTitle"
-                  type="text"
-                  name="feedbackTitle"
-                  value={generatedTitle}
-                  onChange={(e) => setGeneratedTitle(e.target.value)}
-                />
-              </div>
-            )}
+           
             {feedbackType === 'academic' && (
               <div>
                 <Label htmlFor="academicYear">Academic Year *</Label>
@@ -524,6 +518,18 @@ const FeedbackForm = () => {
                     ))}
                   </SelectContent>
                 </Select>
+              </div>
+            )}
+             {feedbackType === 'academic' && subType === "practical" && (
+              <div >
+                <Label>Feedback Title</Label>
+                <Input
+                  id="feedbackTitle"
+                  type="text"
+                  name="feedbackTitle"
+                  value={generatedTitle}
+                  onChange={(e) => setGeneratedTitle(e.target.value)}
+                />
               </div>
             )}
             <div>
